@@ -189,8 +189,8 @@ public class Field {
      * player outside the field or inside a wall
      * @return A list of valid moves
      */
-    public ArrayList<MoveType> getValidMoveTypes() {
-        ArrayList<MoveType> validMoveTypes = new ArrayList<>();
+    public ArrayList<Point> getValidMoveTypes() {
+        ArrayList<Point> validMoveTypes = new ArrayList<>();
         int myX = this.myPosition.x;
         int myY = this.myPosition.y;
 
@@ -199,10 +199,10 @@ public class Field {
         Point left = new Point(myX - 1, myY);
         Point right = new Point(myX + 1, myY);
 
-        if (isPointValid(up)) validMoveTypes.add(MoveType.UP);
-        if (isPointValid(down)) validMoveTypes.add(MoveType.DOWN);
-        if (isPointValid(left)) validMoveTypes.add(MoveType.LEFT);
-        if (isPointValid(right)) validMoveTypes.add(MoveType.RIGHT);
+        if (isPointValid(up) ) validMoveTypes.add(up);
+        if (isPointValid(down) ) validMoveTypes.add(down);
+        if (isPointValid(left) ) validMoveTypes.add(left);
+        if (isPointValid(right) ) validMoveTypes.add(right);
 
         return validMoveTypes;
     }
@@ -218,6 +218,63 @@ public class Field {
 
         return x >= 0 && x < this.width && y >= 0 && y < this.height &&
                 !this.field[x][y].contains(BLOCKED_FIELD);
+    }
+
+    //Pick the best move type out of getValidMoveTypes
+    public MoveType getBestMoveTypes() {
+        ArrayList<Point> bestMoveTypes = getValidMoveTypes();
+        Point destination = getSnippetPositions().get(0);
+        int leastDistance = distance(destination, bestMoveTypes.get(0));
+        Point bestMove = bestMoveTypes.get(0);
+
+        for(int i = 0; i < bestMoveTypes.size(); i++) {
+            if(distance(destination, bestMoveTypes.get(i)) < leastDistance){
+                bestMove = bestMoveTypes.get(i);
+            }
+        }
+
+        //System.out.println("Lily in bestmovetype: " + bestMoveTypes);
+        return whichMoveType(bestMove);
+    }
+
+    /*
+     * find relative distance between potential next move and destination
+     */
+    public int distance(Point destination, Point potential){
+        int distance = 0;
+        int deltaX = 0;
+        int deltaY = 0;
+
+        deltaX = destination.x - potential.x;
+        deltaY = destination.y - potential.y;
+
+        distance = (int) Math.sqrt((int) Math.pow (deltaX , 2) + (int) Math.pow (deltaY , 2));
+
+        return distance;
+    }
+
+    /*
+     * return movetype according to the coordinates
+     * movetype limited to left, right, up, and down
+     */
+    public MoveType whichMoveType(Point point){
+        int myX = this.myPosition.x;
+        int myY = this.myPosition.y;
+
+        if(point.x == myX && point.y == myY - 1){
+            return MoveType.UP;
+        }
+        else if(point.x == myX && point.y == myY + 1){
+            return MoveType.DOWN;
+        }
+        else if(point.x == myX - 1 && point.y == myY){
+            return MoveType.LEFT;
+        }
+        else if(point.x == myX + 1 && point.y == myY){
+            return MoveType.RIGHT;
+        }
+
+        return null;
     }
 
     public void setMyId(int id) {
