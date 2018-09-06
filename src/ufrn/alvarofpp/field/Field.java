@@ -276,26 +276,12 @@ public class Field {
         Point left = new Point(myX - 1, myY);
         Point right = new Point(myX + 1, myY);
 
-        if (cell.getUp().isMovePointValid(MoveType.UP)) validMoveTypes.add(up);
-        if (cell.getUp().isMovePointValid(MoveType.DOWN)) validMoveTypes.add(down);
-        if (cell.getUp().isMovePointValid(MoveType.LEFT)) validMoveTypes.add(left);
-        if (cell.getUp().isMovePointValid(MoveType.RIGHT)) validMoveTypes.add(right);
+        if (cell.isMovePointValid(MoveType.UP)) validMoveTypes.add(up);
+        if (cell.isMovePointValid(MoveType.DOWN)) validMoveTypes.add(down);
+        if (cell.isMovePointValid(MoveType.LEFT)) validMoveTypes.add(left);
+        if (cell.isMovePointValid(MoveType.RIGHT)) validMoveTypes.add(right);
 
         return validMoveTypes;
-    }
-
-    /**
-     * Returns whether a point on the field is valid to stand on.
-     *
-     * @param point Point to test
-     * @return True if point is valid to stand on, false otherwise
-     */
-    public boolean isPointValid(Point point) {
-        int x = point.x;
-        int y = point.y;
-
-        return x >= 0 && x < this.width && y >= 0 && y < this.height &&
-                !this.grid[x][y].isBlocked();
     }
 
     //Pick the best move type out of getValidMoveTypes
