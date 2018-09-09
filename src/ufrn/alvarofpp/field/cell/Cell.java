@@ -10,10 +10,6 @@ public class Cell {
      */
     private CellType cellType;
     /**
-     * Posição que ela representa no mapa
-     */
-    private Point position;
-    /**
      * Celulas vizinhas
      */
     private Cell up;
@@ -24,10 +20,6 @@ public class Cell {
      * Se a celula serve de spawn para bugs
      */
     private boolean spawnBug;
-    /**
-     * Se a celula contem code snippet
-     */
-    private boolean codeSnippet;
 
     /**
      *
@@ -35,10 +27,12 @@ public class Cell {
 
     public Cell(CellType cellType) {
         this.cellType = cellType;
+        this.initDefault();
     }
 
     public Cell(String cellType) {
         this.cellType = CellType.declare(cellType);
+        this.initDefault();
     }
 
     private void initNeighborhood() {
@@ -50,7 +44,6 @@ public class Cell {
 
     private void initDefault() {
         this.spawnBug = false;
-        this.codeSnippet = false;
         this.initNeighborhood();
     }
 
@@ -97,14 +90,6 @@ public class Cell {
 
     public void setCellType(CellType cellType) {
         this.cellType = cellType;
-    }
-
-    public Point getPosition() {
-        return position;
-    }
-
-    public void setPosition(Point position) {
-        this.position = position;
     }
 
     public boolean isSpawnBug() {

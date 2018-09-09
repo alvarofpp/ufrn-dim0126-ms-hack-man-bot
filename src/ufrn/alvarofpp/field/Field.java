@@ -52,10 +52,7 @@ public class Field {
     private ArrayList<Point> bombPositions;
     private ArrayList<Point> tickingBombPositions;
 
-    private boolean firstTimeField;
-
     public Field() {
-        this.firstTimeField = true;
         this.enemyPositions = new ArrayList<>();
         this.snippetPositions = new ArrayList<>();
         this.bombPositions = new ArrayList<>();
@@ -81,20 +78,12 @@ public class Field {
      * Clears the field
      */
     public void clearField() {
-        for (int x = 0; x < this.width; x++) {
-            for (int y = 0; y < this.height; y++) {
-                this.grid[x][y] = null;
-            }
-        }
-
         this.myPosition = null;
         this.opponentPosition = null;
         this.enemyPositions.clear();
         this.snippetPositions.clear();
         this.bombPositions.clear();
         this.tickingBombPositions.clear();
-
-        this.firstTimeField = true;
     }
 
     /**
@@ -120,24 +109,24 @@ public class Field {
         x = 0;
         y = 0;
         // Declarando os vizinhos
-        for (int i = 0; i < (length-1); i++) {
+        for (int i = 0; i < length; i++) {
             Cell cell = this.grid[x][y];
 
             // Esquerdo
             if (x != 0) {
-                cell.setLeft(this.grid[x][y]);
+                cell.setLeft(this.grid[x-1][y]);
             }
             // Direito
             if (x != (this.width-1)) {
-                cell.setRight(this.grid[x][y]);
+                cell.setRight(this.grid[x+1][y]);
             }
             // Superior
             if (y != 0) {
-                cell.setUp(this.grid[x][y]);
+                cell.setUp(this.grid[x][y-1]);
             }
             // Inferior
             if (y != (this.height-1)) {
-                cell.setRight(this.grid[x][y]);
+                cell.setRight(this.grid[x][y+1]);
             }
 
             // Controle dos indices da matriz
@@ -146,8 +135,6 @@ public class Field {
                 y++;
             }
         }
-
-        this.firstTimeField = false;
     }
 
     /**
@@ -161,10 +148,8 @@ public class Field {
 
         String[] cells = input.split(",");
 
-        // Caso seja a primeira vez
-        if (this.firstTimeField) {
-            this.createGrid(cells);
-        }
+        // Criar o grid
+        this.createGrid(cells);
 
         int x = 0;
         int y = 0;
@@ -271,15 +256,18 @@ public class Field {
 
         Cell cell = this.grid[myX][myY];
 
-        Point up = new Point(myX, myY - 1);
-        Point down = new Point(myX, myY + 1);
-        Point left = new Point(myX - 1, myY);
-        Point right = new Point(myX + 1, myY);
-
-        if (cell.isMovePointValid(MoveType.UP)) validMoveTypes.add(up);
-        if (cell.isMovePointValid(MoveType.DOWN)) validMoveTypes.add(down);
-        if (cell.isMovePointValid(MoveType.LEFT)) validMoveTypes.add(left);
-        if (cell.isMovePointValid(MoveType.RIGHT)) validMoveTypes.add(right);
+        if (cell.isMovePointValid(MoveType.UP)) {
+            validMoveTypes.add(new Point(myX, myY - 1));
+        }
+        if (cell.isMovePointValid(MoveType.DOWN)) {
+            validMoveTypes.add(new Point(myX, myY + 1));
+        }
+        if (cell.isMovePointValid(MoveType.LEFT)) {
+            validMoveTypes.add(new Point(myX - 1, myY));
+        }
+        if (cell.isMovePointValid(MoveType.RIGHT)) {
+            validMoveTypes.add(new Point(myX + 1, myY));
+        }
 
         return validMoveTypes;
     }
