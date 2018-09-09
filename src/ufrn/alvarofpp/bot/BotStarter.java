@@ -58,24 +58,20 @@ public class BotStarter {
      * @return A Move object
      */
     public Move doMove(BotState state) {
-        ArrayList<MoveType> validMoveTypes = state.getField().getValidMoveTypes();
+        Player me = state.getPlayers().get(state.getMyName());
+        MoveType bestMoveType = state.getField().getBestMoveTypes();
 
-        if (validMoveTypes.size() <= 0) {
+        if (bestMoveType == null ) {
             return new Move(); // No valid moves, pass
         }
 
-        // Get random but valid move type
-        MoveType randomMoveType = validMoveTypes.get(this.random.nextInt(validMoveTypes.size()));
-
-        Player me = state.getPlayers().get(state.getMyName());
-
         if (me.getBombs() <= 0) {
-            return new Move(randomMoveType); // No bombs available
+            return new Move(bestMoveType); // No bombs available
         }
 
         int bombTicks = this.random.nextInt(4) + 2; // random number 2 - 5
 
-        return new Move(randomMoveType, bombTicks); // Drop bomb if available
+        return new Move(bestMoveType, bombTicks); // Drop bomb if available
     }
 
     public static void main(String[] args) {

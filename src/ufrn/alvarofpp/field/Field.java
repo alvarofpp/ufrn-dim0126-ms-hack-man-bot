@@ -22,11 +22,13 @@ package ufrn.alvarofpp.field;
 import java.awt.*;
 import java.util.ArrayList;
 
+import ufrn.alvarofpp.field.cell.Cell;
+import ufrn.alvarofpp.field.cell.CellType;
 import ufrn.alvarofpp.move.MoveType;
 
 /**
  * field.Field
- *
+ * <p>
  * Stores all information about the playing field and
  * contains methods to perform calculations about the field
  *
@@ -42,7 +44,7 @@ public class Field {
     private int width;
     private int height;
 
-    private String[][] field;
+    private Cell[][] grid;
     private Point myPosition;
     private Point opponentPosition;
     private ArrayList<Point> enemyPositions;
@@ -59,11 +61,12 @@ public class Field {
 
     /**
      * Initializes field
+     *
      * @throws Exception: exception
      */
     public void initField() throws Exception {
         try {
-            this.field = new String[this.width][this.height];
+            this.grid = new Cell[this.width][this.height];
         } catch (Exception e) {
             throw new Exception("Error: trying to initialize field while field "
                     + "settings have not been parsed yet.");
@@ -75,12 +78,6 @@ public class Field {
      * Clears the field
      */
     public void clearField() {
-        for (int y = 0; y < this.height; y++) {
-            for (int x = 0; x < this.width; x++) {
-                this.field[x][y] = "";
-            }
-        }
-
         this.myPosition = null;
         this.opponentPosition = null;
         this.enemyPositions.clear();
@@ -90,40 +87,98 @@ public class Field {
     }
 
     /**
+     *
+     * @param cells
+     */
+    private void createGrid(String[] cells) {
+        int x = 0;
+        int y = 0;
+        int length = cells.length;
+
+        // Primeiras atribuições
+        for (int i = 0; i < length; i++) {
+            this.grid[x][y] = new Cell(cells[i]);
+
+            // Controle dos indices da matriz
+            if (++x == this.width) {
+                x = 0;
+                y++;
+            }
+        }
+
+        x = 0;
+        y = 0;
+        // Declarando os vizinhos
+        for (int i = 0; i < length; i++) {
+            Cell cell = this.grid[x][y];
+
+            // Esquerdo
+            if (x != 0) {
+                cell.setLeft(this.grid[x-1][y]);
+            }
+            // Direito
+            if (x != (this.width-1)) {
+                cell.setRight(this.grid[x+1][y]);
+            }
+            // Superior
+            if (y != 0) {
+                cell.setUp(this.grid[x][y-1]);
+            }
+            // Inferior
+            if (y != (this.height-1)) {
+                cell.setRight(this.grid[x][y+1]);
+            }
+
+            // Controle dos indices da matriz
+            if (++x == this.width) {
+                x = 0;
+                y++;
+            }
+        }
+    }
+
+    /**
      * Parses input string from the engine and stores it in
      * this.field. Also stores several interesting points.
+     *
      * @param input String input from the engine
      */
     public void parseFromString(String input) {
         clearField();
 
         String[] cells = input.split(",");
+
+        // Criar o grid
+        this.createGrid(cells);
+
         int x = 0;
         int y = 0;
 
-        for (String cellString : cells) {
-            this.field[x][y] = cellString;
-
-            for (String cellPart : cellString.split(";")) {
-                switch (cellPart.charAt(0)) {
-                    case 'P':
-                        parsePlayerCell(cellPart.charAt(1), x, y);
-                        break;
-                    case 'e':
-                        // TODO: store spawn points
-                        break;
-                    case 'E':
-                        parseEnemyCell(cellPart.charAt(1), x, y);
-                        break;
-                    case 'B':
-                        parseBombCell(cellPart, x, y);
-                        break;
-                    case 'C':
-                        parseSnippetCell(x, y);
-                        break;
+        for (String cell : cells) {
+            // Quando é uma celula que pode ser atualizada os valores
+            if (this.grid[x][y].isEmpty()) {
+                for (String cellPart : cell.split(";")) {
+                    switch (cellPart.charAt(0)) {
+                        case 'P':
+                            parsePlayerCell(cellPart.charAt(1), x, y);
+                            break;
+                        case 'e':
+                            // TODO: store spawn points
+                            break;
+                        case 'E':
+                            parseEnemyCell(cellPart.charAt(1), x, y);
+                            break;
+                        case 'B':
+                            parseBombCell(cellPart, x, y);
+                            break;
+                        case 'C':
+                            parseSnippetCell(x, y);
+                            break;
+                    }
                 }
             }
 
+            // Controle dos indices da matriz
             if (++x == this.width) {
                 x = 0;
                 y++;
@@ -133,9 +188,10 @@ public class Field {
 
     /**
      * Stores the position of one of the players, given by the id
+     *
      * @param id Player ID
-     * @param x X-position
-     * @param y Y-position
+     * @param x  X-position
+     * @param y  Y-position
      */
     private void parsePlayerCell(char id, int x, int y) {
         if (id == this.myId.charAt(0)) {
@@ -148,9 +204,10 @@ public class Field {
     /**
      * Stores the position of an enemy. The type of enemy AI
      * is also given, but not stored in the starterbot.
+     *
      * @param type Type of enemy AI
-     * @param x X-position
-     * @param y Y-position
+     * @param x    X-position
+     * @param y    Y-position
      */
     private void parseEnemyCell(char type, int x, int y) {
         this.enemyPositions.add(new Point(x, y));
@@ -160,12 +217,13 @@ public class Field {
      * Stores the position of a bomb that can be collected or is
      * about to explode. The amount of ticks is not stored
      * in this starterbot.
+     *
      * @param cell The string that represents a bomb, if only 1 letter it
      *             can be collected, otherwise it will contain a number
      *             2 - 5, that means it's ticking to explode in that amount
      *             of rounds.
-     * @param x X-position
-     * @param y Y-position
+     * @param x    X-position
+     * @param y    Y-position
      */
     private void parseBombCell(String cell, int x, int y) {
         if (cell.length() <= 1) {
@@ -177,6 +235,7 @@ public class Field {
 
     /**
      * Stores the position of a snippet
+     *
      * @param x X-position
      * @param y Y-position
      */
@@ -187,37 +246,94 @@ public class Field {
     /**
      * Return a list of valid moves for my bot, i.e. moves does not bring
      * player outside the field or inside a wall
+     *
      * @return A list of valid moves
      */
-    public ArrayList<MoveType> getValidMoveTypes() {
-        ArrayList<MoveType> validMoveTypes = new ArrayList<>();
+    public ArrayList<Point> getValidMoveTypes() {
+        ArrayList<Point> validMoveTypes = new ArrayList<>();
         int myX = this.myPosition.x;
         int myY = this.myPosition.y;
 
-        Point up = new Point(myX, myY - 1);
-        Point down = new Point(myX, myY + 1);
-        Point left = new Point(myX - 1, myY);
-        Point right = new Point(myX + 1, myY);
+        Cell cell = this.grid[myX][myY];
 
-        if (isPointValid(up)) validMoveTypes.add(MoveType.UP);
-        if (isPointValid(down)) validMoveTypes.add(MoveType.DOWN);
-        if (isPointValid(left)) validMoveTypes.add(MoveType.LEFT);
-        if (isPointValid(right)) validMoveTypes.add(MoveType.RIGHT);
+        if (cell.isMovePointValid(MoveType.UP)) {
+            validMoveTypes.add(new Point(myX, myY - 1));
+        }
+        if (cell.isMovePointValid(MoveType.DOWN)) {
+            validMoveTypes.add(new Point(myX, myY + 1));
+        }
+        if (cell.isMovePointValid(MoveType.LEFT)) {
+            validMoveTypes.add(new Point(myX - 1, myY));
+        }
+        if (cell.isMovePointValid(MoveType.RIGHT)) {
+            validMoveTypes.add(new Point(myX + 1, myY));
+        }
 
         return validMoveTypes;
     }
 
-    /**
-     * Returns whether a point on the field is valid to stand on.
-     * @param point Point to test
-     * @return True if point is valid to stand on, false otherwise
-     */
-    public boolean isPointValid(Point point) {
-        int x = point.x;
-        int y = point.y;
+    //Pick the best move type out of getValidMoveTypes
+    public MoveType getBestMoveTypes() {
+        ArrayList<Point> validMoveTypes = getValidMoveTypes();
 
-        return x >= 0 && x < this.width && y >= 0 && y < this.height &&
-                !this.field[x][y].contains(BLOCKED_FIELD);
+        int leastDistance = 0;
+        int distance = 0;
+        int pointIndex = 0;
+
+        // Pega a menor distancia entre os code snippets e o personagem
+        for (Point pointSnippet : getSnippetPositions()) {
+            for (int i = 0; i < validMoveTypes.size(); i++) {
+                distance = distance(pointSnippet, validMoveTypes.get(i));
+                // Verifica qual é a menor distancia
+                if (leastDistance == 0 || distance < leastDistance) {
+                    leastDistance = distance;
+                    pointIndex = i;
+                }
+            }
+
+        }
+
+        Point bestPoint = validMoveTypes.get(pointIndex);
+
+        //System.out.println("Lily in bestmovetype: " + bestMoveTypes);
+        return whichMoveType(bestPoint);
+    }
+
+    /*
+     * find relative distance between potential next move and destination
+     */
+    public int distance(Point destination, Point potential) {
+        int distance = 0;
+        int deltaX = 0;
+        int deltaY = 0;
+
+        deltaX = destination.x - potential.x;
+        deltaY = destination.y - potential.y;
+
+        distance = (int) Math.sqrt((int) Math.pow(deltaX, 2) + (int) Math.pow(deltaY, 2));
+
+        return distance;
+    }
+
+    /*
+     * return movetype according to the coordinates
+     * movetype limited to left, right, up, and down
+     */
+    public MoveType whichMoveType(Point point) {
+        int myX = this.myPosition.x;
+        int myY = this.myPosition.y;
+
+        if (point.x == myX && point.y == myY-1) {
+            return MoveType.UP;
+        } else if (point.x == myX && point.y == myY+ 1) {
+            return MoveType.DOWN;
+        } else if (point.x == myX-1 && point.y == myY) {
+            return MoveType.LEFT;
+        } else if (point.x == myX+1 && point.y == myY) {
+            return MoveType.RIGHT;
+        }
+
+        return MoveType.PASS;
     }
 
     public void setMyId(int id) {
