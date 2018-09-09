@@ -1,5 +1,8 @@
-package ufrn.alvarofpp.field.cell;
+package ufrn.alvarofpp.field.grid.cell;
 
+/**
+ * Tipo de celula que pode existir na malha
+ */
 public enum CellType {
     EMTPY,
     BLOCKED,

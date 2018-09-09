@@ -22,10 +22,11 @@ package ufrn.alvarofpp.field;
 import java.awt.*;
 import java.util.ArrayList;
 
-import ufrn.alvarofpp.field.cell.Cell;
-import ufrn.alvarofpp.field.cell.CellType;
+import ufrn.alvarofpp.field.grid.Grid;
+import ufrn.alvarofpp.field.grid.cell.Cell;
 import ufrn.alvarofpp.move.MoveType;
-import ufrn.alvarofpp.move.path.Pathfinding;
+import ufrn.alvarofpp.move.pathfinding.InfluenceType;
+import ufrn.alvarofpp.move.pathfinding.MapInfluence;
 
 /**
  * field.Field
@@ -45,7 +46,7 @@ public class Field {
     private int width;
     private int height;
 
-    private Cell[][] grid;
+    private Grid grid;
     private Point myPosition;
     private Point opponentPosition;
     private ArrayList<Point> enemyPositions;
@@ -53,7 +54,10 @@ public class Field {
     private ArrayList<Point> bombPositions;
     private ArrayList<Point> tickingBombPositions;
 
+    private boolean gridDeclarada;
+
     public Field() {
+        this.gridDeclarada = false;
         this.enemyPositions = new ArrayList<>();
         this.snippetPositions = new ArrayList<>();
         this.bombPositions = new ArrayList<>();
@@ -67,7 +71,9 @@ public class Field {
      */
     public void initField() throws Exception {
         try {
-            this.grid = new Cell[this.width][this.height];
+            if (this.grid == null) {
+                this.grid = new Grid(this.width, this.height);
+            }
         } catch (Exception e) {
             throw new Exception("Error: trying to initialize field while field "
                     + "settings have not been parsed yet.");
@@ -88,61 +94,6 @@ public class Field {
     }
 
     /**
-     * Cria a grid
-     * @param cells
-     */
-    private void createGrid(String[] cells) {
-        int x = 0;
-        int y = 0;
-        int length = cells.length;
-
-        // Primeiras atribuições
-        for (String cell : cells) {
-            this.grid[x][y] = new Cell(cell, x, y);
-
-            // Controle dos indices da matriz
-            if (++x == this.width) {
-                x = 0;
-                y++;
-            }
-        }
-
-        x = 0;
-        y = 0;
-        // Declarando os vizinhos
-        for (int i = 0; i < length; i++) {
-            Cell cell = this.grid[x][y];
-
-            // Esquerdo
-            if (x != 0) {
-                cell.setLeft(this.grid[x-1][y]);
-            } else if (cell.isPortal()) {
-                cell.setLeft(this.grid[this.width-1][y]);
-            }
-            // Direito
-            if (x != (this.width-1)) {
-                cell.setRight(this.grid[x+1][y]);
-            } else if (cell.isPortal()) {
-                cell.setRight(this.grid[0][y]);
-            }
-            // Superior
-            if (y != 0) {
-                cell.setUp(this.grid[x][y-1]);
-            }
-            // Inferior
-            if (y != (this.height-1)) {
-                cell.setRight(this.grid[x][y+1]);
-            }
-
-            // Controle dos indices da matriz
-            if (++x == this.width) {
-                x = 0;
-                y++;
-            }
-        }
-    }
-
-    /**
      * Parses input string from the engine and stores it in
      * this.field. Also stores several interesting points.
      *
@@ -153,15 +104,18 @@ public class Field {
 
         String[] cells = input.split(",");
 
-        // Criar o grid
-        this.createGrid(cells);
+        // Define a malha caso ela ainda não tenha sido definida
+        if (!this.gridDeclarada) {
+            this.grid.define(cells);
+            this.gridDeclarada = true;
+        }
 
         int x = 0;
         int y = 0;
 
         for (String cell : cells) {
             // Quando é uma celula que pode ser atualizada os valores
-            if (this.grid[x][y].isEmpty()) {
+            if (this.grid.getCell(x, y).isEmpty()) {
                 for (String cellPart : cell.split(";")) {
                     switch (cellPart.charAt(0)) {
                         case 'P':
@@ -188,6 +142,27 @@ public class Field {
                 x = 0;
                 y++;
             }
+        }
+
+        this.distributeInfluence();
+    }
+
+    /**
+     * Distribui as influencias nas celulas da malha
+     */
+    private void distributeInfluence() {
+        Cell myCell = this.grid.getCell(this.myPosition.x, this.myPosition.y);
+        MapInfluence mi = new MapInfluence(myCell, InfluenceType.SNIPPET);
+
+        // Limpa as influencias deixadas
+        this.grid.clearInfluence();
+
+        // Distribui a influencia nas celulas para cada code snippet
+        for (Point point : getSnippetPositions()) {
+            // Coloca que não foram percorridos ainda
+            this.grid.setAllPercorrida(false);
+            // Atribui os valores de influencia
+            mi.algorithm(this.grid.getCell(point.x, point.y), MapInfluence.INFLUENCE_INIT);
         }
     }
 
@@ -250,13 +225,24 @@ public class Field {
 
     //Pick the best move type out of getValidMoveTypes
     public MoveType getBestMoveTypes() {
-        Cell myCell = this.grid[this.myPosition.x][this.myPosition.y];
-        Pathfinding pf = new Pathfinding(myCell);
+        Cell myCell = this.grid.getCell(this.myPosition.x, this.myPosition.y);
 
+        /*
         for (Point pointSnippet : getSnippetPositions()) {
-            pf.algorithm(this.grid[pointSnippet.x][pointSnippet.y], 0);
+            mi.algorithm(this.grid[pointSnippet.x][pointSnippet.y], 1.0);
+        }
+        */
+
+        /*
+        String print = "";
+        for (int i = 0; i < this.height; i++) {
+            for (int j = 0; j < this.width; j++) {
+                print += this.grid[j][i].getInfluenceSnippet() + ";";
+            }
         }
 
+        System.out.println("||| " + print);
+*/
         return myCell.getBestValidMove();
     }
 

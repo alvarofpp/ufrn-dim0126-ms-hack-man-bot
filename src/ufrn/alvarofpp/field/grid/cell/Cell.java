@@ -1,10 +1,13 @@
-package ufrn.alvarofpp.field.cell;
+package ufrn.alvarofpp.field.grid.cell;
 
 import ufrn.alvarofpp.move.MoveType;
 
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * Celula da malha
+ */
 public class Cell {
     /**
      * Tipo da celula
@@ -25,17 +28,29 @@ public class Cell {
      * Ponto X,Y que essa célula representa no mapa
      */
     private Point position;
-
     /**
-     * MAP INFLUENCE
+     * Valor de influencia por code snippet
      */
     private double influenceSnippet;
+    /**
+     * Valor de influencia por bugs
+     */
     private double influenceBug;
+    /**
+     * Valor de influencia por inimigo
+     */
     private double influenceEnemy;
-    private boolean percorrida;
+    /**
+     * Se a celula já foi percorrida pelo algoritmo de map influence
+     */
+    private boolean percorrido;
 
     /**
      * Construct
+     *
+     * @param cellType Tipo de celula
+     * @param x        Posição X na malha
+     * @param y        Posição Y na malha
      */
     public Cell(String cellType, int x, int y) {
         // Variaveis declaradas
@@ -52,7 +67,7 @@ public class Cell {
         this.influenceSnippet = 0.0;
         this.influenceBug = 0.0;
         this.influenceEnemy = 0.0;
-        this.percorrida = false;
+        this.percorrido = false;
     }
 
     /**
@@ -106,7 +121,9 @@ public class Cell {
     }
 
     /**
-     * @return
+     * Pega o melhor movimento válido para o personagem
+     *
+     * @return Tipo de movimento, representa a direção que o personagem deve seguir
      */
     public MoveType getBestValidMove() {
         double influence = 0.0;
@@ -131,10 +148,12 @@ public class Cell {
     }
 
     /**
-     * @param point
-     * @return
+     * Diz se o ponto desejado é o acima, abaixo, a esquerda ou a direita do ponto do celula em questão
+     *
+     * @param point Ponto que se dejeseda analisar
+     * @return Se o ponto é acima, abaixo, a esquerda ou a direita da celula em questão
      */
-    public MoveType whichMoveType(Point point) {
+    private MoveType whichMoveType(Point point) {
         int myX = this.position.x;
         int myY = this.position.y;
 
@@ -152,11 +171,11 @@ public class Cell {
     }
 
     /**
-     * Verifica se é um ponto válido para andar, dependendo da direção pedida
+     * Verifica se é um ponto válido para andar, dependendo da direção solicitada
      *
      * @return True caso seja um ponto válido, False caso contrário
      */
-    public boolean isMovePointValid(MoveType moveType) {
+    private boolean isMovePointValid(MoveType moveType) {
         if (moveType == MoveType.UP && this.getUp() != null) {
             return !this.getUp().isBlocked();
         } else if (moveType == MoveType.DOWN && this.getDown() != null) {
@@ -171,7 +190,7 @@ public class Cell {
     }
 
     /**
-     * Verifica se é uma celula bloqueada ou não ("X")
+     * Verifica se é uma celula bloqueada ("x") ou não
      *
      * @return True se for do tipo BLOCKED, False caso contrário
      */
@@ -197,29 +216,16 @@ public class Cell {
         return this.cellType == CellType.PORTAL;
     }
 
+    /**
+     * Limpa as influencias que a celula possui
+     */
     public void clearInfluences() {
         this.influenceBug = 0.0;
         this.influenceEnemy = 0.0;
         this.influenceSnippet = 0.0;
     }
 
-    public CellType getCellType() {
-        return cellType;
-    }
-
-    public void setCellType(CellType cellType) {
-        this.cellType = cellType;
-    }
-
-    public boolean isSpawnBug() {
-        return spawnBug;
-    }
-
-    public void setSpawnBug(boolean spawnBug) {
-        this.spawnBug = spawnBug;
-    }
-
-    public Cell getUp() {
+    private Cell getUp() {
         return up;
     }
 
@@ -227,7 +233,7 @@ public class Cell {
         this.up = up;
     }
 
-    public Cell getDown() {
+    private Cell getDown() {
         return down;
     }
 
@@ -235,7 +241,7 @@ public class Cell {
         this.down = down;
     }
 
-    public Cell getLeft() {
+    private Cell getLeft() {
         return left;
     }
 
@@ -243,7 +249,7 @@ public class Cell {
         this.left = left;
     }
 
-    public Cell getRight() {
+    private Cell getRight() {
         return right;
     }
 
@@ -251,12 +257,8 @@ public class Cell {
         this.right = right;
     }
 
-    public Point getPosition() {
+    private Point getPosition() {
         return position;
-    }
-
-    public void setPosition(Point position) {
-        this.position = position;
     }
 
     public int getX() {
@@ -267,7 +269,7 @@ public class Cell {
         return this.position.y;
     }
 
-    public double getInfluenceSnippet() {
+    private double getInfluenceSnippet() {
         return influenceSnippet;
     }
 
@@ -275,27 +277,19 @@ public class Cell {
         this.influenceSnippet += influenceSnippet;
     }
 
-    public double getInfluenceBug() {
-        return influenceBug;
-    }
-
     public void sumInfluenceBug(double influenceBug) {
         this.influenceBug += influenceBug;
-    }
-
-    public double getInfluenceEnemy() {
-        return influenceEnemy;
     }
 
     public void sumInfluenceEnemy(double influenceEnemy) {
         this.influenceEnemy += influenceEnemy;
     }
 
-    public boolean isPercorrida() {
-        return percorrida;
+    public boolean isPercorrido() {
+        return percorrido;
     }
 
-    public void setPercorrida(boolean percorrida) {
-        this.percorrida = percorrida;
+    public void setPercorrido(boolean percorrido) {
+        this.percorrido = percorrido;
     }
 }

@@ -39,14 +39,14 @@ public class MapInfluence {
     public void algorithm(Cell here, double influence) {
         // Quando chegamos na celula que o jogador estar
         if (here.getX() == this.iAm.getX() && here.getY() == this.iAm.getY()) {
-            this.iAm.setPercorrida(true);
+            this.iAm.setPercorrido(true);
             return;
         }
 
         // Verifica se a celula já foi percorrida
-        if (!here.isPercorrida()) {
+        if (!here.isPercorrido()) {
             this.sumInfluence(here, influence);
-            here.setPercorrida(true);
+            here.setPercorrido(true);
 
             // Novo valor de influencia que será atribuido
             double newValueInfluence = influence * this.influenceType.getGrauDecrescimo();
