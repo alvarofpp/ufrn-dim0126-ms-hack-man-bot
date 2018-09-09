@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import ufrn.alvarofpp.field.cell.Cell;
 import ufrn.alvarofpp.field.cell.CellType;
 import ufrn.alvarofpp.move.MoveType;
+import ufrn.alvarofpp.move.path.Pathfinding;
 
 /**
  * field.Field
@@ -87,7 +88,7 @@ public class Field {
     }
 
     /**
-     *
+     * Cria a grid
      * @param cells
      */
     private void createGrid(String[] cells) {
@@ -96,8 +97,8 @@ public class Field {
         int length = cells.length;
 
         // Primeiras atribuições
-        for (int i = 0; i < length; i++) {
-            this.grid[x][y] = new Cell(cells[i]);
+        for (String cell : cells) {
+            this.grid[x][y] = new Cell(cell, x, y);
 
             // Controle dos indices da matriz
             if (++x == this.width) {
@@ -243,38 +244,19 @@ public class Field {
         this.snippetPositions.add(new Point(x, y));
     }
 
-    /**
-     * Return a list of valid moves for my bot, i.e. moves does not bring
-     * player outside the field or inside a wall
-     *
-     * @return A list of valid moves
-     */
-    public ArrayList<Point> getValidMoveTypes() {
-        ArrayList<Point> validMoveTypes = new ArrayList<>();
-        int myX = this.myPosition.x;
-        int myY = this.myPosition.y;
-
-        Cell cell = this.grid[myX][myY];
-
-        if (cell.isMovePointValid(MoveType.UP)) {
-            validMoveTypes.add(new Point(myX, myY - 1));
-        }
-        if (cell.isMovePointValid(MoveType.DOWN)) {
-            validMoveTypes.add(new Point(myX, myY + 1));
-        }
-        if (cell.isMovePointValid(MoveType.LEFT)) {
-            validMoveTypes.add(new Point(myX - 1, myY));
-        }
-        if (cell.isMovePointValid(MoveType.RIGHT)) {
-            validMoveTypes.add(new Point(myX + 1, myY));
-        }
-
-        return validMoveTypes;
-    }
-
     //Pick the best move type out of getValidMoveTypes
     public MoveType getBestMoveTypes() {
-        ArrayList<Point> validMoveTypes = getValidMoveTypes();
+        Cell myCell = this.grid[this.myPosition.x][this.myPosition.y];
+        Pathfinding pf = new Pathfinding(myCell);
+
+        for (Point pointSnippet : getSnippetPositions()) {
+            pf.algorithm(this.grid[pointSnippet.x][pointSnippet.y], 0);
+        }
+
+        return myCell.getBestValidMove();
+
+        /*
+        ArrayList<Point> validMoveTypes = this.grid[this.myPosition.x][this.myPosition.y].getValidMove();
 
         int leastDistance = 0;
         int distance = 0;
@@ -296,7 +278,8 @@ public class Field {
         Point bestPoint = validMoveTypes.get(pointIndex);
 
         //System.out.println("Lily in bestmovetype: " + bestMoveTypes);
-        return whichMoveType(bestPoint);
+        return myCell.whichMoveType(bestPoint);
+        */
     }
 
     /*
@@ -313,27 +296,6 @@ public class Field {
         distance = (int) Math.sqrt((int) Math.pow(deltaX, 2) + (int) Math.pow(deltaY, 2));
 
         return distance;
-    }
-
-    /*
-     * return movetype according to the coordinates
-     * movetype limited to left, right, up, and down
-     */
-    public MoveType whichMoveType(Point point) {
-        int myX = this.myPosition.x;
-        int myY = this.myPosition.y;
-
-        if (point.x == myX && point.y == myY-1) {
-            return MoveType.UP;
-        } else if (point.x == myX && point.y == myY+ 1) {
-            return MoveType.DOWN;
-        } else if (point.x == myX-1 && point.y == myY) {
-            return MoveType.LEFT;
-        } else if (point.x == myX+1 && point.y == myY) {
-            return MoveType.RIGHT;
-        }
-
-        return MoveType.PASS;
     }
 
     public void setMyId(int id) {
