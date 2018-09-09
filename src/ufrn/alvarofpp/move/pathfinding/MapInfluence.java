@@ -45,7 +45,10 @@ public class MapInfluence {
 
         // Verifica se a celula já foi percorrida
         if (!here.isPercorrido()) {
-            this.sumInfluence(here, influence);
+            // Prevalece a influencia do caminho mais perto
+            if (here.getInfluenceSnippet() < influence) {
+                this.setInfluence(here, influence);
+            }
             here.setPercorrido(true);
 
             // Novo valor de influencia que será atribuido
@@ -61,18 +64,18 @@ public class MapInfluence {
     }
 
     /**
-     * Soma a influencia atribuida a celula em questão
+     * Seta a influencia atribuida a celula em questão
      *
      * @param here      Celula em questão
      * @param influence Influencia atribuida a celula
      */
-    private void sumInfluence(Cell here, double influence) {
+    private void setInfluence(Cell here, double influence) {
         if (this.influenceType == InfluenceType.BUG) {
-            here.sumInfluenceBug(influence);
+            here.setInfluenceBug(influence);
         } else if (this.influenceType == InfluenceType.ENEMY) {
-            here.sumInfluenceEnemy(influence);
+            here.setInfluenceEnemy(influence);
         } else {
-            here.sumInfluenceSnippet(influence);
+            here.setInfluenceSnippet(influence);
         }
     }
 }

@@ -38,9 +38,6 @@ import ufrn.alvarofpp.move.pathfinding.MapInfluence;
  */
 public class Field {
 
-    protected final String EMTPY_FIELD = ".";
-    protected final String BLOCKED_FIELD = "x";
-
     private String myId;
     private String opponentId;
     private int width;
@@ -54,10 +51,10 @@ public class Field {
     private ArrayList<Point> bombPositions;
     private ArrayList<Point> tickingBombPositions;
 
-    private boolean gridDeclarada;
+    private boolean gridDefinida;
 
     public Field() {
-        this.gridDeclarada = false;
+        this.gridDefinida = false;
         this.enemyPositions = new ArrayList<>();
         this.snippetPositions = new ArrayList<>();
         this.bombPositions = new ArrayList<>();
@@ -84,7 +81,7 @@ public class Field {
     /**
      * Clears the field
      */
-    public void clearField() {
+    private void clearField() {
         this.myPosition = null;
         this.opponentPosition = null;
         this.enemyPositions.clear();
@@ -105,9 +102,9 @@ public class Field {
         String[] cells = input.split(",");
 
         // Define a malha caso ela ainda não tenha sido definida
-        if (!this.gridDeclarada) {
+        if (!this.gridDefinida) {
             this.grid.define(cells);
-            this.gridDeclarada = true;
+            this.gridDefinida = true;
         }
 
         int x = 0;

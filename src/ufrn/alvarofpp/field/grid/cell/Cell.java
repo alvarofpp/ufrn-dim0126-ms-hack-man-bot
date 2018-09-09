@@ -269,20 +269,28 @@ public class Cell {
         return this.position.y;
     }
 
-    private double getInfluenceSnippet() {
+    public void setInfluenceSnippet(double influenceSnippet) {
+        this.influenceSnippet = influenceSnippet;
+    }
+
+    public double getInfluenceSnippet() {
         return influenceSnippet;
     }
 
-    public void sumInfluenceSnippet(double influenceSnippet) {
-        this.influenceSnippet += influenceSnippet;
+    public void setInfluenceBug(double influenceBug) {
+        this.influenceBug = influenceBug;
     }
 
-    public void sumInfluenceBug(double influenceBug) {
-        this.influenceBug += influenceBug;
+    public double getInfluenceBug() {
+        return influenceBug;
     }
 
-    public void sumInfluenceEnemy(double influenceEnemy) {
-        this.influenceEnemy += influenceEnemy;
+    public void setInfluenceEnemy(double influenceEnemy) {
+        this.influenceEnemy = influenceEnemy;
+    }
+
+    public double getInfluenceEnemy() {
+        return influenceEnemy;
     }
 
     public boolean isPercorrido() {
