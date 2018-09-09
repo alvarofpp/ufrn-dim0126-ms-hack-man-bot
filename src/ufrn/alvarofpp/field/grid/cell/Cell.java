@@ -25,36 +25,34 @@ public class Cell {
      * Ponto X,Y que essa célula representa no mapa
      */
     private Point position;
-    /**
-     * O valor inserido na celula pelo algoritmo de pathfinding
-     */
-    private int valuePath;
-    /**
-     * Quantidade de vezes que a celula foi encontrada como uma boa direção
-     */
-    private int countPath;
 
     /**
-     *
+     * MAP INFLUENCE
+     */
+    private double influenceSnippet;
+    private double influenceBug;
+    private double influenceEnemy;
+    private boolean percorrida;
+
+    /**
+     * Construct
      */
     public Cell(String cellType, int x, int y) {
+        // Variaveis declaradas
         this.cellType = CellType.declare(cellType);
         this.position = new Point(x, y);
-        this.initDefault();
-    }
-
-    private void initDefault() {
+        // Variaveis de valores padrão
         this.spawnBug = false;
-        this.valuePath = -1;
-        this.countPath = 0;
-        this.initNeighborhood();
-    }
-
-    private void initNeighborhood() {
+        // Vizinhos
         this.up = null;
         this.down = null;
         this.left = null;
         this.right = null;
+        // Influencias
+        this.influenceSnippet = 0.0;
+        this.influenceBug = 0.0;
+        this.influenceEnemy = 0.0;
+        this.percorrida = false;
     }
 
     /**
@@ -108,25 +106,31 @@ public class Cell {
     }
 
     /**
-     *
      * @return
      */
     public MoveType getBestValidMove() {
-        int value = this.valuePath;
+        double influence = 0.0;
         Point point = this.position;
 
-        for (Cell cell: this.getValidMoveCells()) {
-            if (cell.getValuePath() < value) {
-                value = cell.getValuePath();
+        for (Cell cell : this.getValidMoveCells()) {
+            /*
+            System.out.println("||| Size saporra: " + this.getValidMoveCells().size()
+            + " || getInfluenceSnippet: " + cell.getInfluenceSnippet() + " | Influence: " + influence);
+            */
+            if (cell.getInfluenceSnippet() > influence) {
+                influence = cell.getInfluenceSnippet();
                 point = cell.getPosition();
             }
         }
 
+        /*
+        System.out.println("Cell--> x: " + point.x + " | y: " + point.y + " | Influence: " + influence
+                + " ||| Position--> x: " + this.position.x + " | y: " + this.position.y);
+                */
         return this.whichMoveType(point);
     }
 
     /**
-     *
      * @param point
      * @return
      */
@@ -134,13 +138,13 @@ public class Cell {
         int myX = this.position.x;
         int myY = this.position.y;
 
-        if (point.x == myX && point.y == myY-1) {
+        if (point.x == myX && point.y == myY - 1) {
             return MoveType.UP;
-        } else if (point.x == myX && point.y == myY+1) {
+        } else if (point.x == myX && point.y == myY + 1) {
             return MoveType.DOWN;
-        } else if (point.x == myX-1 && point.y == myY) {
+        } else if (point.x == myX - 1 && point.y == myY) {
             return MoveType.LEFT;
-        } else if (point.x == myX+1 && point.y == myY) {
+        } else if (point.x == myX + 1 && point.y == myY) {
             return MoveType.RIGHT;
         }
 
@@ -182,6 +186,21 @@ public class Cell {
      */
     public boolean isEmpty() {
         return this.cellType == CellType.EMTPY;
+    }
+
+    /**
+     * Verifica se é um portal ("GL", "GR")
+     *
+     * @return True se for do tipo PORTAL, False caso contrário
+     */
+    public boolean isPortal() {
+        return this.cellType == CellType.PORTAL;
+    }
+
+    public void clearInfluences() {
+        this.influenceBug = 0.0;
+        this.influenceEnemy = 0.0;
+        this.influenceSnippet = 0.0;
     }
 
     public CellType getCellType() {
@@ -248,19 +267,35 @@ public class Cell {
         return this.position.y;
     }
 
-    public int getValuePath() {
-        return valuePath;
+    public double getInfluenceSnippet() {
+        return influenceSnippet;
     }
 
-    public void setValuePath(int valuePath) {
-        this.valuePath = valuePath;
+    public void sumInfluenceSnippet(double influenceSnippet) {
+        this.influenceSnippet += influenceSnippet;
     }
 
-    public int getCountPath() {
-        return countPath;
+    public double getInfluenceBug() {
+        return influenceBug;
     }
 
-    public void setCountPath(int countPath) {
-        this.countPath = countPath;
+    public void sumInfluenceBug(double influenceBug) {
+        this.influenceBug += influenceBug;
+    }
+
+    public double getInfluenceEnemy() {
+        return influenceEnemy;
+    }
+
+    public void sumInfluenceEnemy(double influenceEnemy) {
+        this.influenceEnemy += influenceEnemy;
+    }
+
+    public boolean isPercorrida() {
+        return percorrida;
+    }
+
+    public void setPercorrida(boolean percorrida) {
+        this.percorrida = percorrida;
     }
 }
