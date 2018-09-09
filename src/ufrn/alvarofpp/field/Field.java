@@ -116,10 +116,14 @@ public class Field {
             // Esquerdo
             if (x != 0) {
                 cell.setLeft(this.grid[x-1][y]);
+            } else if (cell.isPortal()) {
+                cell.setLeft(this.grid[this.width-1][y]);
             }
             // Direito
             if (x != (this.width-1)) {
                 cell.setRight(this.grid[x+1][y]);
+            } else if (cell.isPortal()) {
+                cell.setRight(this.grid[0][y]);
             }
             // Superior
             if (y != 0) {
@@ -254,48 +258,6 @@ public class Field {
         }
 
         return myCell.getBestValidMove();
-
-        /*
-        ArrayList<Point> validMoveTypes = this.grid[this.myPosition.x][this.myPosition.y].getValidMove();
-
-        int leastDistance = 0;
-        int distance = 0;
-        int pointIndex = 0;
-
-        // Pega a menor distancia entre os code snippets e o personagem
-        for (Point pointSnippet : getSnippetPositions()) {
-            for (int i = 0; i < validMoveTypes.size(); i++) {
-                distance = distance(pointSnippet, validMoveTypes.get(i));
-                // Verifica qual é a menor distancia
-                if (leastDistance == 0 || distance < leastDistance) {
-                    leastDistance = distance;
-                    pointIndex = i;
-                }
-            }
-
-        }
-
-        Point bestPoint = validMoveTypes.get(pointIndex);
-
-        //System.out.println("Lily in bestmovetype: " + bestMoveTypes);
-        return myCell.whichMoveType(bestPoint);
-        */
-    }
-
-    /*
-     * find relative distance between potential next move and destination
-     */
-    public int distance(Point destination, Point potential) {
-        int distance = 0;
-        int deltaX = 0;
-        int deltaY = 0;
-
-        deltaX = destination.x - potential.x;
-        deltaY = destination.y - potential.y;
-
-        distance = (int) Math.sqrt((int) Math.pow(deltaX, 2) + (int) Math.pow(deltaY, 2));
-
-        return distance;
     }
 
     public void setMyId(int id) {
