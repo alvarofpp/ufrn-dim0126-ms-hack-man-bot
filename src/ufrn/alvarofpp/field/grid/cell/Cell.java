@@ -1,6 +1,8 @@
 package ufrn.alvarofpp.field.grid.cell;
 
 import ufrn.alvarofpp.move.MoveType;
+import ufrn.alvarofpp.move.pathfinding.InfluenceType;
+import ufrn.alvarofpp.move.pathfinding.MapInfluence;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -107,7 +109,7 @@ public class Cell {
         for (Cell cell : this.getValidMoveCells()) {
             // Analisa influencia dos code snippet
             // Analisa a influencia dos bugs
-            if (cell.getInfluenceSnippet() > influenceSnippet && cell.getInfluenceBug() < 0.5) {
+            if (cell.getInfluenceSnippet() > influenceSnippet && cell.getInfluenceBug() < InfluenceType.INFLUENCE_BUG_ACCEPT) {
                 influenceSnippet = cell.getInfluenceSnippet();
                 point = cell.getPosition();
             }
@@ -118,7 +120,7 @@ public class Cell {
 
         // Caso o MoveType escolhido seja PASS, analisar com base em outros critérios
         if (escolhido.equals(MoveType.PASS)) {
-            double influenceBug = 1.0;
+            double influenceBug = MapInfluence.INFLUENCE_INIT;
             // Verifica novamente qual é a melhor celula para se movimentar
             for (Cell cell : this.getValidMoveCells()) {
                 if (cell.getInfluenceBug() < influenceBug) {

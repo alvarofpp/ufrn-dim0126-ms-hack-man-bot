@@ -8,6 +8,11 @@ public enum InfluenceType {
     BUG,
     OPPONENT;
 
+    /**
+     * Influencia aceitavel de Bug na celula
+     */
+    public static final double INFLUENCE_BUG_ACCEPT = 0.5;
+
     @Override
     public String toString() {
         return this.name().toLowerCase();
