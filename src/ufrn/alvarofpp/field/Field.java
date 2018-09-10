@@ -155,8 +155,19 @@ public class Field {
         // Limpa as influencias deixadas
         this.grid.clearInfluence();
 
+        // CODE SNIPPETS
         // Distribui a influencia nas celulas para cada code snippet
         for (Point point : getSnippetPositions()) {
+            // Coloca que não foram percorridos ainda
+            this.grid.setAllPercorrida(false);
+            // Atribui os valores de influencia
+            mi.algorithm(this.grid.getCell(point.x, point.y), MapInfluence.INFLUENCE_INIT);
+        }
+
+        // BUGS
+        mi.setInfluenceType(InfluenceType.BUG);
+        // Distribui a influencia nas celulas para cada bug em um raio definido
+        for (Point point : getEnemyPositions()) {
             // Coloca que não foram percorridos ainda
             this.grid.setAllPercorrida(false);
             // Atribui os valores de influencia

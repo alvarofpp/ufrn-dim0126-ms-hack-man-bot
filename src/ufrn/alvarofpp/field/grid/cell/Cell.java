@@ -39,7 +39,7 @@ public class Cell {
     /**
      * Valor de influencia por inimigo
      */
-    private double influenceEnemy;
+    private double influenceOpponent;
     /**
      * Se a celula já foi percorrida pelo algoritmo de map influence
      */
@@ -66,7 +66,7 @@ public class Cell {
         // Influencias
         this.influenceSnippet = 0.0;
         this.influenceBug = 0.0;
-        this.influenceEnemy = 0.0;
+        this.influenceOpponent = 0.0;
         this.percorrido = false;
     }
 
@@ -101,17 +101,37 @@ public class Cell {
      */
     public MoveType getBestValidMove() {
         Point point = this.position;
-        double influence = this.influenceSnippet;
+        double influenceSnippet = this.influenceSnippet;
 
+        // Verifica qual é a melhor celula para se movimentar
         for (Cell cell : this.getValidMoveCells()) {
-            if (cell.getInfluenceSnippet() > influence) {
-                influence = cell.getInfluenceSnippet();
+            // Analisa influencia dos code snippet
+            // Analisa a influencia dos bugs
+            if (cell.getInfluenceSnippet() > influenceSnippet && cell.getInfluenceBug() < 0.5) {
+                influenceSnippet = cell.getInfluenceSnippet();
                 point = cell.getPosition();
             }
-
         }
 
-        return this.whichMoveType(point);
+        // Direção escolhida
+        MoveType escolhido = this.whichMoveType(point);
+
+        // Caso o MoveType escolhido seja PASS, analisar com base em outros critérios
+        if (escolhido.equals(MoveType.PASS)) {
+            double influenceBug = 1.0;
+            // Verifica novamente qual é a melhor celula para se movimentar
+            for (Cell cell : this.getValidMoveCells()) {
+                if (cell.getInfluenceBug() < influenceBug) {
+                    influenceBug = cell.getInfluenceBug();
+                    point = cell.getPosition();
+                }
+            }
+
+            // Atualiza a escolha
+            escolhido = this.whichMoveType(point);
+        }
+
+        return escolhido;
     }
 
     /**
@@ -197,7 +217,7 @@ public class Cell {
      */
     public void clearInfluences() {
         this.influenceBug = 0.0;
-        this.influenceEnemy = 0.0;
+        this.influenceOpponent = 0.0;
         this.influenceSnippet = 0.0;
     }
 
@@ -261,12 +281,12 @@ public class Cell {
         return influenceBug;
     }
 
-    public void setInfluenceEnemy(double influenceEnemy) {
-        this.influenceEnemy = influenceEnemy;
+    public void setInfluenceOpponent(double influenceOpponent) {
+        this.influenceOpponent = influenceOpponent;
     }
 
-    public double getInfluenceEnemy() {
-        return influenceEnemy;
+    public double getInfluenceOpponent() {
+        return influenceOpponent;
     }
 
     public boolean isPercorrido() {

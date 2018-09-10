@@ -44,10 +44,15 @@ public class MapInfluence {
             return;
         }
 
+        // Caso a influencia seja pequena o suficiente para ignorar
+        if (this.influenceType.getMinValueInfluence() >= influence) {
+            return;
+        }
+
         // Verifica se a celula já foi percorrida
-        if (!here.isPercorrido() || here.getInfluenceSnippet() < influence) {
+        if (!here.isPercorrido() || this.getInfluenceValue(here) < influence) {
             // Prevalece a influencia do caminho mais perto
-            if (here.getInfluenceSnippet() < influence) {
+            if (this.getInfluenceValue(here) < influence) {
                 this.setInfluence(here, influence);
             }
             here.setPercorrido(true);
@@ -71,10 +76,35 @@ public class MapInfluence {
     private void setInfluence(Cell here, double influence) {
         if (this.influenceType == InfluenceType.BUG) {
             here.setInfluenceBug(influence);
-        } else if (this.influenceType == InfluenceType.ENEMY) {
-            here.setInfluenceEnemy(influence);
+        } else if (this.influenceType == InfluenceType.OPPONENT) {
+            here.setInfluenceOpponent(influence);
         } else {
             here.setInfluenceSnippet(influence);
         }
+    }
+
+    /**
+     * Retorna o valor da influência desejada
+     *
+     * @param cell Celula que se deseja pegar o valor de influência
+     * @return Valor da influência solicitada
+     */
+    private double getInfluenceValue(Cell cell) {
+        if (this.influenceType == InfluenceType.BUG) {
+            return cell.getInfluenceBug();
+        } else if (this.influenceType == InfluenceType.OPPONENT) {
+            return cell.getInfluenceOpponent();
+        } else {
+            return cell.getInfluenceSnippet();
+        }
+    }
+
+    /**
+     * Seta um novo tipo de influência no algoritmo
+     *
+     * @param influenceType Tipo de influência que se deseja
+     */
+    public void setInfluenceType(InfluenceType influenceType) {
+        this.influenceType = influenceType;
     }
 }
