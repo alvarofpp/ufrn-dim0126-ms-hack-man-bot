@@ -111,8 +111,9 @@ public class Field {
         int y = 0;
 
         for (String cell : cells) {
+            Cell cellGrid = this.grid.getCell(x, y);
             // Quando é uma celula que pode ser atualizada os valores
-            if (this.grid.getCell(x, y).isEmpty()) {
+            if (!cellGrid.isBlocked()) {
                 for (String cellPart : cell.split(";")) {
                     switch (cellPart.charAt(0)) {
                         case 'P':
@@ -224,7 +225,10 @@ public class Field {
     public MoveType getBestMoveTypes() {
         Cell myCell = this.grid.getCell(this.myPosition.x, this.myPosition.y);
 
-        return myCell.getBestValidMove();
+        MoveType escolhido = myCell.getBestValidMove();
+        System.out.println("||| Escolhido: " + escolhido.toString());
+
+        return escolhido;
     }
 
     public void setMyId(int id) {
