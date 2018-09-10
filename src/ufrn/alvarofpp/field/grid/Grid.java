@@ -68,6 +68,19 @@ public class Grid {
     }
 
     /**
+     * Limpa os valores de perigo de laser
+     */
+    public void clearDangerLaser() {
+        for (int i = 0; i < this.height; i++) {
+            for (int j = 0; j < this.width; j++) {
+                if (!this.cells[j][i].isBlocked()) {
+                    this.cells[j][i].setDangerLaser(0);
+                }
+            }
+        }
+    }
+
+    /**
      * Seta o valor desejado na variavel "percorrida" das celulas
      *
      * @param value Valor desejado que seja setado

@@ -39,9 +39,17 @@ public class Cell {
      */
     private double influenceBug;
     /**
+     * Valor de influencia por laser-mine
+     */
+    private double influenceMine;
+    /**
      * Valor de influencia por inimigo
      */
     private double influenceOpponent;
+    /**
+     * Se aquela celula tem risco de ter laser das minas
+     */
+    private int dangerLaser;
     /**
      * Se a celula já foi percorrida pelo algoritmo de map influence
      */
@@ -69,7 +77,28 @@ public class Cell {
         this.influenceSnippet = 0.0;
         this.influenceBug = 0.0;
         this.influenceOpponent = 0.0;
+        this.influenceMine = 0.0;
         this.percorrido = false;
+        this.dangerLaser = 0;
+    }
+
+    public ArrayList<MoveType> getValidDirections() {
+        ArrayList<MoveType> validDirections = new ArrayList<>();
+
+        if (this.isMovePointValid(MoveType.UP)) {
+            validDirections.add(MoveType.UP);
+        }
+        if (this.isMovePointValid(MoveType.DOWN)) {
+            validDirections.add(MoveType.DOWN);
+        }
+        if (this.isMovePointValid(MoveType.LEFT)) {
+            validDirections.add(MoveType.LEFT);
+        }
+        if (this.isMovePointValid(MoveType.RIGHT)) {
+            validDirections.add(MoveType.RIGHT);
+        }
+
+        return validDirections;
     }
 
     /**
@@ -223,7 +252,7 @@ public class Cell {
         this.influenceSnippet = 0.0;
     }
 
-    private Cell getUp() {
+    public Cell getUp() {
         return up;
     }
 
@@ -231,7 +260,7 @@ public class Cell {
         this.up = up;
     }
 
-    private Cell getDown() {
+    public Cell getDown() {
         return down;
     }
 
@@ -239,7 +268,7 @@ public class Cell {
         this.down = down;
     }
 
-    private Cell getLeft() {
+    public Cell getLeft() {
         return left;
     }
 
@@ -247,7 +276,7 @@ public class Cell {
         this.left = left;
     }
 
-    private Cell getRight() {
+    public Cell getRight() {
         return right;
     }
 
@@ -291,6 +320,14 @@ public class Cell {
         return influenceOpponent;
     }
 
+    public double getInfluenceMine() {
+        return influenceMine;
+    }
+
+    public void setInfluenceMine(double influenceMine) {
+        this.influenceMine = influenceMine;
+    }
+
     public boolean isPercorrido() {
         return percorrido;
     }
@@ -298,5 +335,14 @@ public class Cell {
     public void setPercorrido(boolean percorrido) {
         this.percorrido = percorrido;
     }
+
+    public int getDangerLaser() {
+        return dangerLaser;
+    }
+
+    public void setDangerLaser(int dangerLaser) {
+        this.dangerLaser = dangerLaser;
+    }
+
 
 }

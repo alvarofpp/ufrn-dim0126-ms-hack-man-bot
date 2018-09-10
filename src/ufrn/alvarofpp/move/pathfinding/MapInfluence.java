@@ -1,6 +1,10 @@
 package ufrn.alvarofpp.move.pathfinding;
 
+import ufrn.alvarofpp.field.grid.Grid;
 import ufrn.alvarofpp.field.grid.cell.Cell;
+import ufrn.alvarofpp.move.MoveType;
+
+import java.awt.*;
 
 /**
  * Classe que executará o algoritmo de dispersão de influência do mapa de influência
@@ -64,6 +68,54 @@ public class MapInfluence {
             for (Cell cell : here.getValidMoveCells()) {
                 this.algorithm(cell, newValueInfluence);
             }
+        }
+    }
+
+    /**
+     * Começo do algoritmo recursivo de inserir os valores de periculosidade de laser-mines
+     *
+     * @param here Celula inicial que possui uma bomba prestes a explodir
+     */
+    public void initAlgorithmLaserMines(Cell here) {
+        int dangerLaser = here.getDangerLaser();
+
+        // Realiza a distribuição de influência nas celulas que estão nas direções válidas
+        for (MoveType mt : here.getValidDirections()) {
+            this.algorithmLaserMines(here, dangerLaser, mt);
+        }
+    }
+
+    /**
+     * Atribui o valor de periculosidade do laser da mina na celula
+     *
+     * @param here        Celula que se esta analisando
+     * @param dangerLaser Grau de periculosidade do laser
+     * @param direction   Direção do algoritmo
+     */
+    private void algorithmLaserMines(Cell here, int dangerLaser, MoveType direction) {
+        // Verifica se chegou ao fim de uma rota
+        if (here == null) {
+            return;
+        }
+        // Quando a celula é bloqueada
+        if (here.isBlocked()) {
+            return;
+        }
+
+        // Caso a celula possa ter maior periculosidade
+        if (here.getDangerLaser() == 0 || here.getDangerLaser() > dangerLaser) {
+            here.setDangerLaser(dangerLaser);
+        }
+
+        // Segue o algoritmo na direção informada
+        if (direction.equals(MoveType.UP)) {
+            this.algorithmLaserMines(here.getUp(), dangerLaser, direction);
+        } else if (direction.equals(MoveType.DOWN)) {
+            this.algorithmLaserMines(here.getDown(), dangerLaser, direction);
+        } else if (direction.equals(MoveType.LEFT)) {
+            this.algorithmLaserMines(here.getLeft(), dangerLaser, direction);
+        } else if (direction.equals(MoveType.RIGHT)) {
+            this.algorithmLaserMines(here.getRight(), dangerLaser, direction);
         }
     }
 

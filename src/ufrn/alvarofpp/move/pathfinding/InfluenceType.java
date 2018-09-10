@@ -6,7 +6,8 @@ package ufrn.alvarofpp.move.pathfinding;
 public enum InfluenceType {
     SNIPPET,
     BUG,
-    OPPONENT;
+    OPPONENT,
+    LASE_MINER;
 
     /**
      * Influencia aceitavel de Bug na celula
