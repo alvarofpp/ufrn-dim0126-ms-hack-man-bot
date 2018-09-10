@@ -101,17 +101,37 @@ public class Cell {
      */
     public MoveType getBestValidMove() {
         Point point = this.position;
-        double influence = this.influenceSnippet;
+        double influenceSnippet = this.influenceSnippet;
 
+        // Verifica qual é a melhor celula para se movimentar
         for (Cell cell : this.getValidMoveCells()) {
-            if (cell.getInfluenceSnippet() > influence && cell.getInfluenceBug() < 0.5) {
-                influence = cell.getInfluenceSnippet();
+            // Analisa influencia dos code snippet
+            // Analisa a influencia dos bugs
+            if (cell.getInfluenceSnippet() > influenceSnippet && cell.getInfluenceBug() < 0.5) {
+                influenceSnippet = cell.getInfluenceSnippet();
                 point = cell.getPosition();
             }
-
         }
 
-        return this.whichMoveType(point);
+        // Direção escolhida
+        MoveType escolhido = this.whichMoveType(point);
+
+        // Caso o MoveType escolhido seja PASS, analisar com base em outros critérios
+        if (escolhido.equals(MoveType.PASS)) {
+            double influenceBug = 1.0;
+            // Verifica novamente qual é a melhor celula para se movimentar
+            for (Cell cell : this.getValidMoveCells()) {
+                if (cell.getInfluenceBug() < influenceBug) {
+                    influenceBug = cell.getInfluenceBug();
+                    point = cell.getPosition();
+                }
+            }
+
+            // Atualiza a escolha
+            escolhido = this.whichMoveType(point);
+        }
+
+        return escolhido;
     }
 
     /**
