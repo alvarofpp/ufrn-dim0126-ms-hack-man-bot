@@ -22,9 +22,11 @@ package ufrn.alvarofpp.field;
 import java.awt.*;
 import java.util.ArrayList;
 
-import ufrn.alvarofpp.field.cell.Cell;
-import ufrn.alvarofpp.field.cell.CellType;
+import ufrn.alvarofpp.field.grid.Grid;
+import ufrn.alvarofpp.field.grid.cell.Cell;
 import ufrn.alvarofpp.move.MoveType;
+import ufrn.alvarofpp.move.pathfinding.InfluenceType;
+import ufrn.alvarofpp.move.pathfinding.MapInfluence;
 
 /**
  * field.Field
@@ -36,15 +38,12 @@ import ufrn.alvarofpp.move.MoveType;
  */
 public class Field {
 
-    protected final String EMTPY_FIELD = ".";
-    protected final String BLOCKED_FIELD = "x";
-
     private String myId;
     private String opponentId;
     private int width;
     private int height;
 
-    private Cell[][] grid;
+    private Grid grid;
     private Point myPosition;
     private Point opponentPosition;
     private ArrayList<Point> enemyPositions;
@@ -52,7 +51,10 @@ public class Field {
     private ArrayList<Point> bombPositions;
     private ArrayList<Point> tickingBombPositions;
 
+    private boolean gridDefinida;
+
     public Field() {
+        this.gridDefinida = false;
         this.enemyPositions = new ArrayList<>();
         this.snippetPositions = new ArrayList<>();
         this.bombPositions = new ArrayList<>();
@@ -66,7 +68,9 @@ public class Field {
      */
     public void initField() throws Exception {
         try {
-            this.grid = new Cell[this.width][this.height];
+            if (this.grid == null) {
+                this.grid = new Grid(this.width, this.height);
+            }
         } catch (Exception e) {
             throw new Exception("Error: trying to initialize field while field "
                     + "settings have not been parsed yet.");
@@ -77,64 +81,13 @@ public class Field {
     /**
      * Clears the field
      */
-    public void clearField() {
+    private void clearField() {
         this.myPosition = null;
         this.opponentPosition = null;
         this.enemyPositions.clear();
         this.snippetPositions.clear();
         this.bombPositions.clear();
         this.tickingBombPositions.clear();
-    }
-
-    /**
-     *
-     * @param cells
-     */
-    private void createGrid(String[] cells) {
-        int x = 0;
-        int y = 0;
-        int length = cells.length;
-
-        // Primeiras atribuições
-        for (int i = 0; i < length; i++) {
-            this.grid[x][y] = new Cell(cells[i]);
-
-            // Controle dos indices da matriz
-            if (++x == this.width) {
-                x = 0;
-                y++;
-            }
-        }
-
-        x = 0;
-        y = 0;
-        // Declarando os vizinhos
-        for (int i = 0; i < length; i++) {
-            Cell cell = this.grid[x][y];
-
-            // Esquerdo
-            if (x != 0) {
-                cell.setLeft(this.grid[x-1][y]);
-            }
-            // Direito
-            if (x != (this.width-1)) {
-                cell.setRight(this.grid[x+1][y]);
-            }
-            // Superior
-            if (y != 0) {
-                cell.setUp(this.grid[x][y-1]);
-            }
-            // Inferior
-            if (y != (this.height-1)) {
-                cell.setRight(this.grid[x][y+1]);
-            }
-
-            // Controle dos indices da matriz
-            if (++x == this.width) {
-                x = 0;
-                y++;
-            }
-        }
     }
 
     /**
@@ -148,15 +101,19 @@ public class Field {
 
         String[] cells = input.split(",");
 
-        // Criar o grid
-        this.createGrid(cells);
+        // Define a malha caso ela ainda não tenha sido definida
+        if (!this.gridDefinida) {
+            this.grid.define(cells);
+            this.gridDefinida = true;
+        }
 
         int x = 0;
         int y = 0;
 
         for (String cell : cells) {
+            Cell cellGrid = this.grid.getCell(x, y);
             // Quando é uma celula que pode ser atualizada os valores
-            if (this.grid[x][y].isEmpty()) {
+            if (!cellGrid.isBlocked()) {
                 for (String cellPart : cell.split(";")) {
                     switch (cellPart.charAt(0)) {
                         case 'P':
@@ -183,6 +140,27 @@ public class Field {
                 x = 0;
                 y++;
             }
+        }
+
+        this.distributeInfluence();
+    }
+
+    /**
+     * Distribui as influencias nas celulas da malha
+     */
+    private void distributeInfluence() {
+        Cell myCell = this.grid.getCell(this.myPosition.x, this.myPosition.y);
+        MapInfluence mi = new MapInfluence(myCell, InfluenceType.SNIPPET);
+
+        // Limpa as influencias deixadas
+        this.grid.clearInfluence();
+
+        // Distribui a influencia nas celulas para cada code snippet
+        for (Point point : getSnippetPositions()) {
+            // Coloca que não foram percorridos ainda
+            this.grid.setAllPercorrida(false);
+            // Atribui os valores de influencia
+            mi.algorithm(this.grid.getCell(point.x, point.y), MapInfluence.INFLUENCE_INIT);
         }
     }
 
@@ -243,97 +221,14 @@ public class Field {
         this.snippetPositions.add(new Point(x, y));
     }
 
-    /**
-     * Return a list of valid moves for my bot, i.e. moves does not bring
-     * player outside the field or inside a wall
-     *
-     * @return A list of valid moves
-     */
-    public ArrayList<Point> getValidMoveTypes() {
-        ArrayList<Point> validMoveTypes = new ArrayList<>();
-        int myX = this.myPosition.x;
-        int myY = this.myPosition.y;
-
-        Cell cell = this.grid[myX][myY];
-
-        if (cell.isMovePointValid(MoveType.UP)) {
-            validMoveTypes.add(new Point(myX, myY - 1));
-        }
-        if (cell.isMovePointValid(MoveType.DOWN)) {
-            validMoveTypes.add(new Point(myX, myY + 1));
-        }
-        if (cell.isMovePointValid(MoveType.LEFT)) {
-            validMoveTypes.add(new Point(myX - 1, myY));
-        }
-        if (cell.isMovePointValid(MoveType.RIGHT)) {
-            validMoveTypes.add(new Point(myX + 1, myY));
-        }
-
-        return validMoveTypes;
-    }
-
     //Pick the best move type out of getValidMoveTypes
     public MoveType getBestMoveTypes() {
-        ArrayList<Point> validMoveTypes = getValidMoveTypes();
+        Cell myCell = this.grid.getCell(this.myPosition.x, this.myPosition.y);
 
-        int leastDistance = 0;
-        int distance = 0;
-        int pointIndex = 0;
+        MoveType escolhido = myCell.getBestValidMove();
+        System.out.println("||| Escolhido: " + escolhido.toString());
 
-        // Pega a menor distancia entre os code snippets e o personagem
-        for (Point pointSnippet : getSnippetPositions()) {
-            for (int i = 0; i < validMoveTypes.size(); i++) {
-                distance = distance(pointSnippet, validMoveTypes.get(i));
-                // Verifica qual é a menor distancia
-                if (leastDistance == 0 || distance < leastDistance) {
-                    leastDistance = distance;
-                    pointIndex = i;
-                }
-            }
-
-        }
-
-        Point bestPoint = validMoveTypes.get(pointIndex);
-
-        //System.out.println("Lily in bestmovetype: " + bestMoveTypes);
-        return whichMoveType(bestPoint);
-    }
-
-    /*
-     * find relative distance between potential next move and destination
-     */
-    public int distance(Point destination, Point potential) {
-        int distance = 0;
-        int deltaX = 0;
-        int deltaY = 0;
-
-        deltaX = destination.x - potential.x;
-        deltaY = destination.y - potential.y;
-
-        distance = (int) Math.sqrt((int) Math.pow(deltaX, 2) + (int) Math.pow(deltaY, 2));
-
-        return distance;
-    }
-
-    /*
-     * return movetype according to the coordinates
-     * movetype limited to left, right, up, and down
-     */
-    public MoveType whichMoveType(Point point) {
-        int myX = this.myPosition.x;
-        int myY = this.myPosition.y;
-
-        if (point.x == myX && point.y == myY-1) {
-            return MoveType.UP;
-        } else if (point.x == myX && point.y == myY+ 1) {
-            return MoveType.DOWN;
-        } else if (point.x == myX-1 && point.y == myY) {
-            return MoveType.LEFT;
-        } else if (point.x == myX+1 && point.y == myY) {
-            return MoveType.RIGHT;
-        }
-
-        return MoveType.PASS;
+        return escolhido;
     }
 
     public void setMyId(int id) {

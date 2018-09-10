@@ -1,7 +1,7 @@
 package ufrn.alvarofpp.tests;
 
 import org.junit.jupiter.api.Test;
-import ufrn.alvarofpp.field.cell.CellType;
+import ufrn.alvarofpp.field.grid.cell.CellType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
