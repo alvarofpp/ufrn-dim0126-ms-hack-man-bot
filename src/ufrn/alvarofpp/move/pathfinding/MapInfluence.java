@@ -40,6 +40,7 @@ public class MapInfluence {
         // Quando chegamos na celula que o jogador estar
         if (here.getX() == this.iAm.getX() && here.getY() == this.iAm.getY()) {
             this.iAm.setPercorrido(true);
+            this.setInfluence(this.iAm, influence);
             return;
         }
 
@@ -59,8 +60,6 @@ public class MapInfluence {
                 this.algorithm(cell, newValueInfluence);
             }
         }
-
-        return;
     }
 
     /**

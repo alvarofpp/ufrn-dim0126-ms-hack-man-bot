@@ -224,22 +224,6 @@ public class Field {
     public MoveType getBestMoveTypes() {
         Cell myCell = this.grid.getCell(this.myPosition.x, this.myPosition.y);
 
-        /*
-        for (Point pointSnippet : getSnippetPositions()) {
-            mi.algorithm(this.grid[pointSnippet.x][pointSnippet.y], 1.0);
-        }
-        */
-
-        /*
-        String print = "";
-        for (int i = 0; i < this.height; i++) {
-            for (int j = 0; j < this.width; j++) {
-                print += this.grid[j][i].getInfluenceSnippet() + ";";
-            }
-        }
-
-        System.out.println("||| " + print);
-*/
         return myCell.getBestValidMove();
     }
 

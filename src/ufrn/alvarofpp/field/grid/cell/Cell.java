@@ -71,32 +71,6 @@ public class Cell {
     }
 
     /**
-     * Pega as direções válidas
-     *
-     * @return Lista de direções válidas para seguir
-     */
-    public ArrayList<Point> getValidMove() {
-        ArrayList<Point> validMoveTypes = new ArrayList<>();
-        int myX = this.position.x;
-        int myY = this.position.y;
-
-        if (this.isMovePointValid(MoveType.UP)) {
-            validMoveTypes.add(new Point(myX, myY - 1));
-        }
-        if (this.isMovePointValid(MoveType.DOWN)) {
-            validMoveTypes.add(new Point(myX, myY + 1));
-        }
-        if (this.isMovePointValid(MoveType.LEFT)) {
-            validMoveTypes.add(new Point(myX - 1, myY));
-        }
-        if (this.isMovePointValid(MoveType.RIGHT)) {
-            validMoveTypes.add(new Point(myX + 1, myY));
-        }
-
-        return validMoveTypes;
-    }
-
-    /**
      * Pega as celulas válidas
      *
      * @return Lista de celulas válidas para seguir
@@ -126,24 +100,17 @@ public class Cell {
      * @return Tipo de movimento, representa a direção que o personagem deve seguir
      */
     public MoveType getBestValidMove() {
-        double influence = 0.0;
         Point point = this.position;
+        double influence = this.influenceSnippet;
 
         for (Cell cell : this.getValidMoveCells()) {
-            /*
-            System.out.println("||| Size saporra: " + this.getValidMoveCells().size()
-            + " || getInfluenceSnippet: " + cell.getInfluenceSnippet() + " | Influence: " + influence);
-            */
             if (cell.getInfluenceSnippet() > influence) {
                 influence = cell.getInfluenceSnippet();
                 point = cell.getPosition();
             }
+
         }
 
-        /*
-        System.out.println("Cell--> x: " + point.x + " | y: " + point.y + " | Influence: " + influence
-                + " ||| Position--> x: " + this.position.x + " | y: " + this.position.y);
-                */
         return this.whichMoveType(point);
     }
 
@@ -165,6 +132,15 @@ public class Cell {
             return MoveType.LEFT;
         } else if (point.x == myX + 1 && point.y == myY) {
             return MoveType.RIGHT;
+        }
+
+        // Quando for portal
+        if (this.isPortal() && point.y == myY) {
+            if (point.x > myX) {
+                return MoveType.LEFT;
+            } else if (point.x < myX) {
+                return MoveType.RIGHT;
+            }
         }
 
         return MoveType.PASS;
@@ -195,7 +171,7 @@ public class Cell {
      * @return True se for do tipo BLOCKED, False caso contrário
      */
     public boolean isBlocked() {
-        return this.cellType == CellType.BLOCKED;
+        return this.cellType.equals(CellType.BLOCKED);
     }
 
     /**
@@ -204,7 +180,7 @@ public class Cell {
      * @return True se for do tipo EMPTY, False caso contrário
      */
     public boolean isEmpty() {
-        return this.cellType == CellType.EMTPY;
+        return this.cellType.equals(CellType.EMTPY);
     }
 
     /**
@@ -213,7 +189,7 @@ public class Cell {
      * @return True se for do tipo PORTAL, False caso contrário
      */
     public boolean isPortal() {
-        return this.cellType == CellType.PORTAL;
+        return this.cellType.equals(CellType.PORTAL);
     }
 
     /**
@@ -299,5 +275,37 @@ public class Cell {
 
     public void setPercorrido(boolean percorrido) {
         this.percorrido = percorrido;
+    }
+
+
+    public String vizinhos() {
+        String vizinhos = "";
+
+        if (this.getUp() != null && !this.getUp().isBlocked()) {
+            vizinhos += "Up;";
+        } else {
+            vizinhos += "null;";
+        }
+
+        if (this.getDown() != null && !this.getDown().isBlocked()) {
+            vizinhos += "Down;";
+        } else {
+            vizinhos += "null;";
+        }
+
+        if (this.getLeft() != null && !this.getLeft().isBlocked()) {
+            vizinhos += "Left;";
+        } else {
+            vizinhos += "null;";
+        }
+
+        if (this.getRight() != null && !this.getRight().isBlocked()) {
+            vizinhos += "Right;";
+        } else {
+            vizinhos += "null;";
+        }
+
+        return vizinhos;
+
     }
 }

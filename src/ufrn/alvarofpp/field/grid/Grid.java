@@ -93,7 +93,7 @@ public class Grid {
 
         // Atribuindo cada celula
         for (String cell : cells) {
-            this.cells[x][y] = new Cell(cell, x, y);
+            this.setCell(x, y, new Cell(cell, x, y));
 
             // Controle dos indices da matriz
             if (++x == this.width) {
