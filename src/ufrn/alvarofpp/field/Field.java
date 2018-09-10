@@ -115,7 +115,7 @@ public class Field {
         for (String cell : cells) {
             Cell cellGrid = this.grid.getCell(x, y);
             // Quando é uma celula que pode ser atualizada os valores
-            if (!cellGrid.isBlocked()) {
+            if (cellGrid.itsPassable()) {
                 for (String cellPart : cell.split(";")) {
                     switch (cellPart.charAt(0)) {
                         case 'P':

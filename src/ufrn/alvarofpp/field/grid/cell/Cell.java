@@ -77,6 +77,11 @@ public class Cell {
         this.dangerLaser = InfluenceType.NO_DANGER_LASER;
     }
 
+    /**
+     * Pega as direções válidas que a celula permite para a realização de algum trajeto
+     *
+     * @return Lista de movimentos válidos
+     */
     public ArrayList<MoveType> getValidDirections() {
         ArrayList<MoveType> validDirections = new ArrayList<>();
 
@@ -239,21 +244,21 @@ public class Cell {
     }
 
     /**
-     * Verifica se é uma celula vazio ou não (".", "C", "P", "S")
-     *
-     * @return True se for do tipo EMPTY, False caso contrário
-     */
-    public boolean isEmpty() {
-        return this.cellType.equals(CellType.EMTPY);
-    }
-
-    /**
      * Verifica se é um portal ("GL", "GR")
      *
      * @return True se for do tipo PORTAL, False caso contrário
      */
     public boolean isPortal() {
         return this.cellType.equals(CellType.PORTAL);
+    }
+
+    /**
+     * Retorna se a celula é passavel (pode-se percorrer algum caminho a partir dela) ou não
+     *
+     * @return True caso seja passavel, False caso contrário
+     */
+    public boolean itsPassable() {
+        return !this.isBlocked();
     }
 
     /**

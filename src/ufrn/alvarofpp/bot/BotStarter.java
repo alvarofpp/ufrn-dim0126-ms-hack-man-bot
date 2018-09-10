@@ -19,7 +19,6 @@
 
 package ufrn.alvarofpp.bot;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 import ufrn.alvarofpp.move.Move;

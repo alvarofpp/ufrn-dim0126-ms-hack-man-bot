@@ -51,7 +51,7 @@ public class Grid {
      * @param y    Posição Y
      * @param cell Celula que será atribuida
      */
-    public void setCell(int x, int y, Cell cell) {
+    private void setCell(int x, int y, Cell cell) {
         this.cells[x][y] = cell;
     }
 
@@ -61,7 +61,7 @@ public class Grid {
     public void clearInfluence() {
         for (int i = 0; i < this.height; i++) {
             for (int j = 0; j < this.width; j++) {
-                if (!this.cells[j][i].isBlocked()) {
+                if (this.cells[j][i].itsPassable()) {
                     this.cells[j][i].clearInfluences();
                 }
             }
@@ -74,7 +74,7 @@ public class Grid {
     public void clearDangerLaser() {
         for (int i = 0; i < this.height; i++) {
             for (int j = 0; j < this.width; j++) {
-                if (!this.cells[j][i].isBlocked()) {
+                if (this.cells[j][i].itsPassable()) {
                     this.cells[j][i].setDangerLaser(InfluenceType.NO_DANGER_LASER);
                 }
             }
@@ -89,7 +89,7 @@ public class Grid {
     public void setAllPercorrida(boolean value) {
         for (int i = 0; i < this.height; i++) {
             for (int j = 0; j < this.width; j++) {
-                if (!this.cells[j][i].isBlocked()) {
+                if (this.cells[j][i].itsPassable()) {
                     this.cells[j][i].setPercorrido(value);
                 }
             }
