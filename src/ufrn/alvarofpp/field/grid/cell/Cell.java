@@ -39,10 +39,6 @@ public class Cell {
      */
     private double influenceBug;
     /**
-     * Valor de influencia por laser-mine
-     */
-    private double influenceMine;
-    /**
      * Valor de influencia por inimigo
      */
     private double influenceOpponent;
@@ -77,9 +73,8 @@ public class Cell {
         this.influenceSnippet = 0.0;
         this.influenceBug = 0.0;
         this.influenceOpponent = 0.0;
-        this.influenceMine = 0.0;
         this.percorrido = false;
-        this.dangerLaser = 0;
+        this.dangerLaser = InfluenceType.NO_DANGER_LASER;
     }
 
     public ArrayList<MoveType> getValidDirections() {
@@ -138,7 +133,10 @@ public class Cell {
         for (Cell cell : this.getValidMoveCells()) {
             // Analisa influencia dos code snippet
             // Analisa a influencia dos bugs
-            if (cell.getInfluenceSnippet() > influenceSnippet && cell.getInfluenceBug() < InfluenceType.INFLUENCE_BUG_ACCEPT) {
+            // Analisa a periculosidade de uma mina explodir
+            if (cell.getInfluenceSnippet() > influenceSnippet
+                    && cell.getInfluenceBug() < InfluenceType.INFLUENCE_BUG_ACCEPT
+                    && cell.getDangerLaser() > 2) {
                 influenceSnippet = cell.getInfluenceSnippet();
                 point = cell.getPosition();
             }
@@ -152,8 +150,23 @@ public class Cell {
             double influenceBug = MapInfluence.INFLUENCE_INIT;
             // Verifica novamente qual é a melhor celula para se movimentar
             for (Cell cell : this.getValidMoveCells()) {
-                if (cell.getInfluenceBug() < influenceBug) {
+                if (cell.getInfluenceBug() < influenceBug && cell.getDangerLaser() >= 4) {
                     influenceBug = cell.getInfluenceBug();
+                    point = cell.getPosition();
+                }
+            }
+
+            // Atualiza a escolha
+            escolhido = this.whichMoveType(point);
+        }
+
+        // Caso continue como PASS, pega o com maior influencia de code snippet
+        if (escolhido.equals(MoveType.PASS)) {
+            influenceSnippet = 0.0;
+            // Verifica novamente qual é a melhor celula para se movimentar
+            for (Cell cell : this.getValidMoveCells()) {
+                if (cell.getInfluenceSnippet() > influenceSnippet  && cell.getDangerLaser() > 1) {
+                    influenceSnippet = cell.getInfluenceSnippet();
                     point = cell.getPosition();
                 }
             }
@@ -318,14 +331,6 @@ public class Cell {
 
     public double getInfluenceOpponent() {
         return influenceOpponent;
-    }
-
-    public double getInfluenceMine() {
-        return influenceMine;
-    }
-
-    public void setInfluenceMine(double influenceMine) {
-        this.influenceMine = influenceMine;
     }
 
     public boolean isPercorrido() {

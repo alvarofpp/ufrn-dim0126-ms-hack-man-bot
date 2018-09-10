@@ -1,10 +1,7 @@
 package ufrn.alvarofpp.move.pathfinding;
 
-import ufrn.alvarofpp.field.grid.Grid;
 import ufrn.alvarofpp.field.grid.cell.Cell;
 import ufrn.alvarofpp.move.MoveType;
-
-import java.awt.*;
 
 /**
  * Classe que executará o algoritmo de dispersão de influência do mapa de influência
@@ -103,7 +100,7 @@ public class MapInfluence {
         }
 
         // Caso a celula possa ter maior periculosidade
-        if (here.getDangerLaser() == 0 || here.getDangerLaser() > dangerLaser) {
+        if (here.getDangerLaser() > dangerLaser) {
             here.setDangerLaser(dangerLaser);
         }
 
