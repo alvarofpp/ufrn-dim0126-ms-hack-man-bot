@@ -39,7 +39,7 @@ public class Cell {
     /**
      * Valor de influencia por inimigo
      */
-    private double influenceEnemy;
+    private double influenceOpponent;
     /**
      * Se a celula já foi percorrida pelo algoritmo de map influence
      */
@@ -66,7 +66,7 @@ public class Cell {
         // Influencias
         this.influenceSnippet = 0.0;
         this.influenceBug = 0.0;
-        this.influenceEnemy = 0.0;
+        this.influenceOpponent = 0.0;
         this.percorrido = false;
     }
 
@@ -197,7 +197,7 @@ public class Cell {
      */
     public void clearInfluences() {
         this.influenceBug = 0.0;
-        this.influenceEnemy = 0.0;
+        this.influenceOpponent = 0.0;
         this.influenceSnippet = 0.0;
     }
 
@@ -261,12 +261,12 @@ public class Cell {
         return influenceBug;
     }
 
-    public void setInfluenceEnemy(double influenceEnemy) {
-        this.influenceEnemy = influenceEnemy;
+    public void setInfluenceOpponent(double influenceOpponent) {
+        this.influenceOpponent = influenceOpponent;
     }
 
-    public double getInfluenceEnemy() {
-        return influenceEnemy;
+    public double getInfluenceOpponent() {
+        return influenceOpponent;
     }
 
     public boolean isPercorrido() {

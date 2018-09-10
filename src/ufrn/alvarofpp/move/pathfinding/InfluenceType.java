@@ -6,7 +6,7 @@ package ufrn.alvarofpp.move.pathfinding;
 public enum InfluenceType {
     SNIPPET,
     BUG,
-    ENEMY;
+    OPPONENT;
 
     @Override
     public String toString() {
@@ -20,11 +20,26 @@ public enum InfluenceType {
      */
     public double getGrauDecrescimo() {
         if (this.equals(InfluenceType.SNIPPET)) {
-            return 0.99;
+            return 0.95;
         } else if (this.equals(InfluenceType.BUG)) {
             return 0.8;
         } else {
             return 0.6;
+        }
+    }
+
+    /**
+     * Pega o valor de parada da propagação da influencia, dependendo do seu tipo
+     *
+     * @return Retorna o valor minimo que a influencia pode atingir
+     */
+    public double getMinValueInfluence() {
+        if (this.equals(InfluenceType.SNIPPET)) {
+            return 0.0;
+        } else if (this.equals(InfluenceType.BUG)) {
+            return 0.25;
+        } else {
+            return 0.20;
         }
     }
 }
