@@ -1,6 +1,8 @@
 package ufrn.alvarofpp.field.grid.cell;
 
 import ufrn.alvarofpp.move.MoveType;
+import ufrn.alvarofpp.move.pathfinding.InfluenceType;
+import ufrn.alvarofpp.move.pathfinding.MapInfluence;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -41,6 +43,10 @@ public class Cell {
      */
     private double influenceOpponent;
     /**
+     * Se aquela celula tem risco de ter laser das minas
+     */
+    private int dangerLaser;
+    /**
      * Se a celula já foi percorrida pelo algoritmo de map influence
      */
     private boolean percorrido;
@@ -68,6 +74,26 @@ public class Cell {
         this.influenceBug = 0.0;
         this.influenceOpponent = 0.0;
         this.percorrido = false;
+        this.dangerLaser = InfluenceType.NO_DANGER_LASER;
+    }
+
+    public ArrayList<MoveType> getValidDirections() {
+        ArrayList<MoveType> validDirections = new ArrayList<>();
+
+        if (this.isMovePointValid(MoveType.UP)) {
+            validDirections.add(MoveType.UP);
+        }
+        if (this.isMovePointValid(MoveType.DOWN)) {
+            validDirections.add(MoveType.DOWN);
+        }
+        if (this.isMovePointValid(MoveType.LEFT)) {
+            validDirections.add(MoveType.LEFT);
+        }
+        if (this.isMovePointValid(MoveType.RIGHT)) {
+            validDirections.add(MoveType.RIGHT);
+        }
+
+        return validDirections;
     }
 
     /**
@@ -107,7 +133,10 @@ public class Cell {
         for (Cell cell : this.getValidMoveCells()) {
             // Analisa influencia dos code snippet
             // Analisa a influencia dos bugs
-            if (cell.getInfluenceSnippet() > influenceSnippet && cell.getInfluenceBug() < 0.5) {
+            // Analisa a periculosidade de uma mina explodir
+            if (cell.getInfluenceSnippet() > influenceSnippet
+                    && cell.getInfluenceBug() < InfluenceType.INFLUENCE_BUG_ACCEPT
+                    && cell.getDangerLaser() > 2) {
                 influenceSnippet = cell.getInfluenceSnippet();
                 point = cell.getPosition();
             }
@@ -118,11 +147,26 @@ public class Cell {
 
         // Caso o MoveType escolhido seja PASS, analisar com base em outros critérios
         if (escolhido.equals(MoveType.PASS)) {
-            double influenceBug = 1.0;
+            double influenceBug = MapInfluence.INFLUENCE_INIT;
             // Verifica novamente qual é a melhor celula para se movimentar
             for (Cell cell : this.getValidMoveCells()) {
-                if (cell.getInfluenceBug() < influenceBug) {
+                if (cell.getInfluenceBug() < influenceBug && cell.getDangerLaser() >= 4) {
                     influenceBug = cell.getInfluenceBug();
+                    point = cell.getPosition();
+                }
+            }
+
+            // Atualiza a escolha
+            escolhido = this.whichMoveType(point);
+        }
+
+        // Caso continue como PASS, pega o com maior influencia de code snippet
+        if (escolhido.equals(MoveType.PASS)) {
+            influenceSnippet = 0.0;
+            // Verifica novamente qual é a melhor celula para se movimentar
+            for (Cell cell : this.getValidMoveCells()) {
+                if (cell.getInfluenceSnippet() > influenceSnippet  && cell.getDangerLaser() > 1) {
+                    influenceSnippet = cell.getInfluenceSnippet();
                     point = cell.getPosition();
                 }
             }
@@ -221,7 +265,7 @@ public class Cell {
         this.influenceSnippet = 0.0;
     }
 
-    private Cell getUp() {
+    public Cell getUp() {
         return up;
     }
 
@@ -229,7 +273,7 @@ public class Cell {
         this.up = up;
     }
 
-    private Cell getDown() {
+    public Cell getDown() {
         return down;
     }
 
@@ -237,7 +281,7 @@ public class Cell {
         this.down = down;
     }
 
-    private Cell getLeft() {
+    public Cell getLeft() {
         return left;
     }
 
@@ -245,7 +289,7 @@ public class Cell {
         this.left = left;
     }
 
-    private Cell getRight() {
+    public Cell getRight() {
         return right;
     }
 
@@ -296,5 +340,14 @@ public class Cell {
     public void setPercorrido(boolean percorrido) {
         this.percorrido = percorrido;
     }
+
+    public int getDangerLaser() {
+        return dangerLaser;
+    }
+
+    public void setDangerLaser(int dangerLaser) {
+        this.dangerLaser = dangerLaser;
+    }
+
 
 }

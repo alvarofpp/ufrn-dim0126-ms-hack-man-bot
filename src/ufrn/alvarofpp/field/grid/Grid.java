@@ -1,6 +1,7 @@
 package ufrn.alvarofpp.field.grid;
 
 import ufrn.alvarofpp.field.grid.cell.Cell;
+import ufrn.alvarofpp.move.pathfinding.InfluenceType;
 
 /**
  * Malha de celulas que representa o mapa do jogo
@@ -62,6 +63,19 @@ public class Grid {
             for (int j = 0; j < this.width; j++) {
                 if (!this.cells[j][i].isBlocked()) {
                     this.cells[j][i].clearInfluences();
+                }
+            }
+        }
+    }
+
+    /**
+     * Limpa os valores de perigo de laser
+     */
+    public void clearDangerLaser() {
+        for (int i = 0; i < this.height; i++) {
+            for (int j = 0; j < this.width; j++) {
+                if (!this.cells[j][i].isBlocked()) {
+                    this.cells[j][i].setDangerLaser(InfluenceType.NO_DANGER_LASER);
                 }
             }
         }

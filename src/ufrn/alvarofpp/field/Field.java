@@ -105,6 +105,8 @@ public class Field {
         if (!this.gridDefinida) {
             this.grid.define(cells);
             this.gridDefinida = true;
+        } else {
+            this.grid.clearDangerLaser();
         }
 
         int x = 0;
@@ -173,6 +175,14 @@ public class Field {
             // Atribui os valores de influencia
             mi.algorithm(this.grid.getCell(point.x, point.y), MapInfluence.INFLUENCE_INIT);
         }
+
+        // LASER-MINES
+        mi.setInfluenceType(InfluenceType.LASE_MINER);
+        // Distribui a influencia nas celulas para cada laser-mine
+        for (Point point : getTickingBombPositions()) {
+            // Atribui os valores de influencia
+            mi.initAlgorithmLaserMines(this.grid.getCell(point.x, point.y));
+        }
     }
 
     /**
@@ -219,6 +229,7 @@ public class Field {
             this.bombPositions.add(new Point(x, y));
         } else {
             this.tickingBombPositions.add(new Point(x, y));
+            this.grid.getCell(x, y).setDangerLaser(Integer.parseInt(String.valueOf(cell.charAt(1))));
         }
     }
 
@@ -236,10 +247,7 @@ public class Field {
     public MoveType getBestMoveTypes() {
         Cell myCell = this.grid.getCell(this.myPosition.x, this.myPosition.y);
 
-        MoveType escolhido = myCell.getBestValidMove();
-        System.out.println("||| Escolhido: " + escolhido.toString());
-
-        return escolhido;
+        return myCell.getBestValidMove();
     }
 
     public void setMyId(int id) {

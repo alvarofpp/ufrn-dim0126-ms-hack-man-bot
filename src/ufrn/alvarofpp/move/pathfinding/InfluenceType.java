@@ -6,7 +6,14 @@ package ufrn.alvarofpp.move.pathfinding;
 public enum InfluenceType {
     SNIPPET,
     BUG,
-    OPPONENT;
+    OPPONENT,
+    LASE_MINER;
+
+    /**
+     * Influencia aceitavel de Bug na celula
+     */
+    public static final double INFLUENCE_BUG_ACCEPT = 0.5;
+    public static final int NO_DANGER_LASER = 6;
 
     @Override
     public String toString() {
