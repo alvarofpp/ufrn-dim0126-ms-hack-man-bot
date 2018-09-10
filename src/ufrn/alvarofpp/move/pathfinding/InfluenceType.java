@@ -13,6 +13,9 @@ public enum InfluenceType {
      * Influencia aceitavel de Bug na celula
      */
     public static final double INFLUENCE_BUG_ACCEPT = 0.5;
+    /**
+     * Valor que indica quando a celula não possui nenhum risco de laser
+     */
     public static final int NO_DANGER_LASER = 6;
 
     @Override

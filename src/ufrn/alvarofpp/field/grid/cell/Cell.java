@@ -165,7 +165,7 @@ public class Cell {
             influenceSnippet = 0.0;
             // Verifica novamente qual é a melhor celula para se movimentar
             for (Cell cell : this.getValidMoveCells()) {
-                if (cell.getInfluenceSnippet() > influenceSnippet  && cell.getDangerLaser() > 1) {
+                if (cell.getInfluenceSnippet() > influenceSnippet && cell.getDangerLaser() > 1) {
                     influenceSnippet = cell.getInfluenceSnippet();
                     point = cell.getPosition();
                 }
