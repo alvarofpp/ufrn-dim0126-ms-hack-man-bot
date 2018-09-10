@@ -45,7 +45,7 @@ public class MapInfluence {
         }
 
         // Verifica se a celula já foi percorrida
-        if (!here.isPercorrido()) {
+        if (!here.isPercorrido() || here.getInfluenceSnippet() < influence) {
             // Prevalece a influencia do caminho mais perto
             if (here.getInfluenceSnippet() < influence) {
                 this.setInfluence(here, influence);

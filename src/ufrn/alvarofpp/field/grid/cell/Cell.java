@@ -136,10 +136,10 @@ public class Cell {
 
         // Quando for portal
         if (this.isPortal() && point.y == myY) {
-            if (point.x > myX) {
-                return MoveType.LEFT;
-            } else if (point.x < myX) {
+            if (myX > point.x) {
                 return MoveType.RIGHT;
+            } else if (myX < point.x) {
+                return MoveType.LEFT;
             }
         }
 
@@ -277,35 +277,4 @@ public class Cell {
         this.percorrido = percorrido;
     }
 
-
-    public String vizinhos() {
-        String vizinhos = "";
-
-        if (this.getUp() != null && !this.getUp().isBlocked()) {
-            vizinhos += "Up;";
-        } else {
-            vizinhos += "null;";
-        }
-
-        if (this.getDown() != null && !this.getDown().isBlocked()) {
-            vizinhos += "Down;";
-        } else {
-            vizinhos += "null;";
-        }
-
-        if (this.getLeft() != null && !this.getLeft().isBlocked()) {
-            vizinhos += "Left;";
-        } else {
-            vizinhos += "null;";
-        }
-
-        if (this.getRight() != null && !this.getRight().isBlocked()) {
-            vizinhos += "Right;";
-        } else {
-            vizinhos += "null;";
-        }
-
-        return vizinhos;
-
-    }
 }
