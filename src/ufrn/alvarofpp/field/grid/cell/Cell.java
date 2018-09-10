@@ -104,7 +104,7 @@ public class Cell {
         double influence = this.influenceSnippet;
 
         for (Cell cell : this.getValidMoveCells()) {
-            if (cell.getInfluenceSnippet() > influence) {
+            if (cell.getInfluenceSnippet() > influence && cell.getInfluenceBug() < 0.5) {
                 influence = cell.getInfluenceSnippet();
                 point = cell.getPosition();
             }
