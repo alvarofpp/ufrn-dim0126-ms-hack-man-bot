@@ -1,8 +1,11 @@
 package ufrn.alvarofpp.field.grid.cell;
 
 import ufrn.alvarofpp.move.MoveType;
-import ufrn.alvarofpp.move.pathfinding.InfluenceType;
 import ufrn.alvarofpp.move.pathfinding.MapInfluence;
+import ufrn.alvarofpp.move.pathfinding.choices.DangerChoice;
+import ufrn.alvarofpp.move.pathfinding.choices.IdealCellChoice;
+import ufrn.alvarofpp.move.pathfinding.choices.MoreSnippetInfluenceChoice;
+import ufrn.alvarofpp.move.pathfinding.choices.rules.LessMineExplodeRule;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -74,7 +77,7 @@ public class Cell {
         this.influenceBug = 0.0;
         this.influenceOpponent = 0.0;
         this.percorrido = false;
-        this.dangerLaser = InfluenceType.NO_DANGER_LASER;
+        this.dangerLaser = LessMineExplodeRule.NO_DANGER_LASER;
     }
 
     /**
@@ -136,12 +139,8 @@ public class Cell {
 
         // Verifica qual é a melhor celula para se movimentar
         for (Cell cell : this.getValidMoveCells()) {
-            // Analisa influencia dos code snippet
-            // Analisa a influencia dos bugs
-            // Analisa a periculosidade de uma mina explodir
-            if (cell.getInfluenceSnippet() > influenceSnippet
-                    && cell.getInfluenceBug() < InfluenceType.INFLUENCE_BUG_ACCEPT
-                    && cell.getDangerLaser() > 2) {
+            // Verificar se aquela celula representa uma celula ideal
+            if (IdealCellChoice.choose(cell, influenceSnippet)) {
                 influenceSnippet = cell.getInfluenceSnippet();
                 point = cell.getPosition();
             }
@@ -155,7 +154,8 @@ public class Cell {
             double influenceBug = MapInfluence.INFLUENCE_INIT;
             // Verifica novamente qual é a melhor celula para se movimentar
             for (Cell cell : this.getValidMoveCells()) {
-                if (cell.getInfluenceBug() < influenceBug && cell.getDangerLaser() >= 4) {
+                // Ver a celula menos perigosa
+                if (DangerChoice.choose(cell, influenceBug)) {
                     influenceBug = cell.getInfluenceBug();
                     point = cell.getPosition();
                 }
@@ -170,7 +170,7 @@ public class Cell {
             influenceSnippet = 0.0;
             // Verifica novamente qual é a melhor celula para se movimentar
             for (Cell cell : this.getValidMoveCells()) {
-                if (cell.getInfluenceSnippet() > influenceSnippet && cell.getDangerLaser() > 1) {
+                if (MoreSnippetInfluenceChoice.choose(cell, influenceSnippet)) {
                     influenceSnippet = cell.getInfluenceSnippet();
                     point = cell.getPosition();
                 }
@@ -302,7 +302,7 @@ public class Cell {
         this.right = right;
     }
 
-    private Point getPosition() {
+    public Point getPosition() {
         return position;
     }
 
