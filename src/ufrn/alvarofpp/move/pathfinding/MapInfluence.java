@@ -153,7 +153,11 @@ public class MapInfluence {
      *
      * @param influenceType Tipo de influência que se deseja
      */
-    public void setInfluenceType(InfluenceType influenceType) {
+    void setInfluenceType(InfluenceType influenceType) {
         this.influenceType = influenceType;
+    }
+
+    void setiAm(Cell iAm) {
+        this.iAm = iAm;
     }
 }

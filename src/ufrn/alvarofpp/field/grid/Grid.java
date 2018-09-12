@@ -3,6 +3,8 @@ package ufrn.alvarofpp.field.grid;
 import ufrn.alvarofpp.field.grid.cell.Cell;
 import ufrn.alvarofpp.move.pathfinding.choices.rules.LessMineExplodeRule;
 
+import java.util.ArrayList;
+
 /**
  * Malha de celulas que representa o mapa do jogo
  */
@@ -61,7 +63,7 @@ public class Grid {
     public void clearInfluence() {
         for (int i = 0; i < this.height; i++) {
             for (int j = 0; j < this.width; j++) {
-                if (this.cells[j][i].itsPassable()) {
+                if (this.cells[j][i].isPassable()) {
                     this.cells[j][i].clearInfluences();
                 }
             }
@@ -74,7 +76,7 @@ public class Grid {
     public void clearDangerLaser() {
         for (int i = 0; i < this.height; i++) {
             for (int j = 0; j < this.width; j++) {
-                if (this.cells[j][i].itsPassable()) {
+                if (this.cells[j][i].isPassable()) {
                     this.cells[j][i].setDangerLaser(LessMineExplodeRule.NO_DANGER_LASER);
                 }
             }
@@ -89,7 +91,7 @@ public class Grid {
     public void setAllPercorrida(boolean value) {
         for (int i = 0; i < this.height; i++) {
             for (int j = 0; j < this.width; j++) {
-                if (this.cells[j][i].itsPassable()) {
+                if (this.cells[j][i].isPassable()) {
                     this.cells[j][i].setPercorrido(value);
                 }
             }
@@ -149,6 +151,31 @@ public class Grid {
                 y++;
             }
         }
+    }
 
+    /**
+     * Pega as celulas que servem de spawn de bugs
+     *
+     * @return Uma lista de celulas que são spawn de bugs
+     */
+    public ArrayList<Cell> getSpawns() {
+        ArrayList<Cell> spawns = new ArrayList<Cell>(4);
+
+        // Adiciona as celulas de spawns
+        spawns.add(this.getCell(0, 0));
+        spawns.add(this.getCell(0, this.height - 1));
+        spawns.add(this.getCell(this.width - 1, this.height - 1));
+        spawns.add(this.getCell(this.width - 1, 0));
+
+        return spawns;
+    }
+
+    /**
+     * Diz se a malha já foi definida ou não
+     *
+     * @return True se já foi definida, False caso contrario
+     */
+    public boolean isDefined() {
+        return this.cells[0][0] != null;
     }
 }
