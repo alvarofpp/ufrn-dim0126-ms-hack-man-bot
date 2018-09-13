@@ -49,6 +49,10 @@ public class Cell {
      * Se a celula já foi percorrida pelo algoritmo de map influence
      */
     private boolean percorrido;
+    /**
+     * Quantidade de rounds que falta para spawnar um bug
+     */
+    private int roundSpawn;
 
     /**
      * Construct
@@ -66,6 +70,8 @@ public class Cell {
         this.down = null;
         this.left = null;
         this.right = null;
+        // Padrão
+        this.roundSpawn = 0;
         // Influencias
         this.influenceSnippet = 0.0;
         this.influenceBug = 0.0;
@@ -348,4 +354,11 @@ public class Cell {
         this.dangerLaser = dangerLaser;
     }
 
+    public int getRoundSpawn() {
+        return roundSpawn;
+    }
+
+    public void setRoundSpawn(int roundSpawn) {
+        this.roundSpawn = roundSpawn;
+    }
 }

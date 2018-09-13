@@ -3,6 +3,7 @@ package ufrn.alvarofpp.field.grid;
 import ufrn.alvarofpp.field.grid.cell.Cell;
 import ufrn.alvarofpp.move.pathfinding.choices.rules.LessMineExplodeRule;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -84,6 +85,15 @@ public class Grid {
     }
 
     /**
+     * Limpa os valores de perigo de spawnar bugs
+     */
+    public void clearSpawn() {
+        for (Point point : getSpawnPoints()) {
+            this.getCell(point.x, point.y).setRoundSpawn(0);
+        }
+    }
+
+    /**
      * Seta o valor desejado na variavel "percorrida" das celulas
      *
      * @param value Valor desejado que seja setado
@@ -154,18 +164,18 @@ public class Grid {
     }
 
     /**
-     * Pega as celulas que servem de spawn de bugs
+     * Pega os pontos que indicam spawn de bugs
      *
      * @return Uma lista de celulas que são spawn de bugs
      */
-    public ArrayList<Cell> getSpawns() {
-        ArrayList<Cell> spawns = new ArrayList<Cell>(4);
+    public ArrayList<Point> getSpawnPoints() {
+        ArrayList<Point> spawns = new ArrayList<Point>(4);
 
         // Adiciona as celulas de spawns
-        spawns.add(this.getCell(0, 0));
-        spawns.add(this.getCell(0, this.height - 1));
-        spawns.add(this.getCell(this.width - 1, this.height - 1));
-        spawns.add(this.getCell(this.width - 1, 0));
+        spawns.add(new Point(0, 0));
+        spawns.add(new Point(0, this.height - 1));
+        spawns.add(new Point(this.width - 1, this.height - 1));
+        spawns.add(new Point(this.width - 1, 0));
 
         return spawns;
     }

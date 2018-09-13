@@ -19,6 +19,8 @@ public class DistributeInfluence {
      */
     private MapInfluence mapInfluence;
 
+    private static final int MAX_CELLS_SPAWN = 4;
+
     /**
      * Constructor
      *
@@ -48,6 +50,7 @@ public class DistributeInfluence {
         this.influenceSnippet(snippetPositions);
         this.influenceBugs(bugsPositions);
         this.influenceMines(tickingBombPositions);
+        this.influenceSpawn();
     }
 
     /**
@@ -93,6 +96,18 @@ public class DistributeInfluence {
         // Distribui a influencia nas celulas para cada laser-mine
         for (Point point : tickingBombPositions) {
             this.mapInfluence.initAlgorithmLaserMines(this.grid.getCell(point.x, point.y));
+        }
+    }
+
+    /**
+     * Realiza a distribuição de influência das minas
+     */
+    private void influenceSpawn() {
+        this.mapInfluence.setInfluenceType(InfluenceType.BUG);
+
+        // Distribui a influencia nas celulas para cada ponto de spawn
+        for (Point point : this.grid.getSpawnPoints()) {
+            this.mapInfluence.initAlgorithmSpawn(this.grid.getCell(point.x, point.y));
         }
     }
 

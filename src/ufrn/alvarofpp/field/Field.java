@@ -106,6 +106,7 @@ public class Field {
             this.grid.define(cells);
         } else {
             this.grid.clearDangerLaser();
+            this.grid.clearSpawn();
         }
 
         int x = 0;
@@ -131,6 +132,9 @@ public class Field {
                             break;
                         case 'C':
                             parseSnippetCell(x, y);
+                            break;
+                        case 'S':
+                            parseSpawnCell(cellPart, x, y);
                             break;
                     }
                 }
@@ -218,6 +222,12 @@ public class Field {
      */
     private void parseSnippetCell(int x, int y) {
         this.snippetPositions.add(new Point(x, y));
+    }
+
+    private void parseSpawnCell(String cell, int x, int y) {
+        if (cell.length() > 1) {
+            this.grid.getCell(x, y).setRoundSpawn(Integer.parseInt(String.valueOf(cell.charAt(1))));
+        }
     }
 
     //Pick the best move type out of getValidMoveTypes
