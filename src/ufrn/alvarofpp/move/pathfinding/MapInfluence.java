@@ -1,5 +1,6 @@
 package ufrn.alvarofpp.move.pathfinding;
 
+import ufrn.alvarofpp.field.BugType;
 import ufrn.alvarofpp.field.grid.cell.Cell;
 import ufrn.alvarofpp.move.MoveType;
 
@@ -20,24 +21,26 @@ public class MapInfluence {
      */
     private Cell iAm;
 
+    private BugType bugType;
+
     /**
      * Constructor
      *
      * @param iAm           Celula que o jogador estar naquele momento
      * @param influenceType Tipo de influencia que se deseja dispersar pela malha
      */
-    public MapInfluence(Cell iAm, InfluenceType influenceType) {
+    MapInfluence(Cell iAm, InfluenceType influenceType) {
         this.iAm = iAm;
         this.influenceType = influenceType;
     }
 
     /**
-     * Realiza o algoritmo de espalhar a influencia nas celulas
+     * Realiza o algoritmo de espalhar a influencia nas celulas (code spinnet e bug)
      *
      * @param here      Celula em questão
      * @param influence Valor de influencia que será atribuido
      */
-    public void algorithm(Cell here, double influence) {
+    void algorithm(Cell here, double influence) {
         // Quando chegamos na celula que o jogador estar
         if (here.getX() == this.iAm.getX() && here.getY() == this.iAm.getY()) {
             this.iAm.setPercorrido(true);
@@ -53,8 +56,11 @@ public class MapInfluence {
         // Verifica se a celula já foi percorrida
         if (!here.isPercorrido() || this.getInfluenceValue(here) < influence) {
             // Prevalece a influencia do caminho mais perto
-            if (this.getInfluenceValue(here) < influence) {
+            if (this.getInfluenceValue(here) < influence && this.influenceType.equals(InfluenceType.SNIPPET)) {
                 this.setInfluence(here, influence);
+            // Insere aumenta a influencia pelo tipo de bug
+            } else if (this.influenceType.equals(InfluenceType.BUG)) {
+                this.setInfluence(here, (influence * bugType.getValueMultiplyType()));
             }
             here.setPercorrido(true);
 
@@ -69,11 +75,55 @@ public class MapInfluence {
     }
 
     /**
+     * Começo do algoritmo recursivo de inserir os valores de spawn de bug proximo
+     *
+     * @param here Celula de spawn de bug que possivelmente possui um bug para spawnar
+     */
+    void initAlgorithmSpawn(Cell here) {
+        // Caso não tenha spawn de bug nos proximos rounds
+        if (here.getRoundSpawn() < 1 || here.getRoundSpawn() > 2) {
+            return;
+        }
+        // Quantidade de celulas que irã percorrer de distância (1-4)
+        int distance = 5 - here.getRoundSpawn();
+        // Influencia inicial
+        double influence = INFLUENCE_INIT / distance;
+
+        // Começa o algoritmo para spawn
+        this.algorithmSpawn(here, influence, distance);
+    }
+
+    /**
+     * Atribui o valor de influencia de bug na celula de spawn e nas proximas
+     *
+     * @param here      Celula de spawn ou celula proxima
+     * @param influence Valor de influencia
+     * @param distance  Distancia percorrida até chegar ao valor máximo de celulas percorridas
+     */
+    private void algorithmSpawn(Cell here, double influence, int distance) {
+        // Caso já tenha percorrido a quantidade máxima de celulas
+        if (distance == 0) {
+            return;
+        }
+
+        // Insere influencia
+        this.setInfluence(here, influence);
+
+        // Novo valor de influencia
+        double newInfluence = 1.0 - (0.2 * (5 - distance));
+
+        // Atribui o novo valor as celulas ao redor validas
+        for (Cell cell : here.getValidMoveCells()) {
+            this.algorithmSpawn(cell, newInfluence, distance - 1);
+        }
+    }
+
+    /**
      * Começo do algoritmo recursivo de inserir os valores de periculosidade de laser-mines
      *
      * @param here Celula inicial que possui uma bomba prestes a explodir
      */
-    public void initAlgorithmLaserMines(Cell here) {
+    void initAlgorithmLaserMines(Cell here) {
         int dangerLaser = here.getDangerLaser();
 
         // Realiza a distribuição de influência nas celulas que estão nas direções válidas
@@ -153,7 +203,15 @@ public class MapInfluence {
      *
      * @param influenceType Tipo de influência que se deseja
      */
-    public void setInfluenceType(InfluenceType influenceType) {
+    void setInfluenceType(InfluenceType influenceType) {
         this.influenceType = influenceType;
+    }
+
+    void setiAm(Cell iAm) {
+        this.iAm = iAm;
+    }
+
+    public void setBugType(BugType bugType) {
+        this.bugType = bugType;
     }
 }

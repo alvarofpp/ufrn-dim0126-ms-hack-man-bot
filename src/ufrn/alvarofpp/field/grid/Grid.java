@@ -3,6 +3,9 @@ package ufrn.alvarofpp.field.grid;
 import ufrn.alvarofpp.field.grid.cell.Cell;
 import ufrn.alvarofpp.move.pathfinding.choices.rules.LessMineExplodeRule;
 
+import java.awt.*;
+import java.util.ArrayList;
+
 /**
  * Malha de celulas que representa o mapa do jogo
  */
@@ -61,7 +64,7 @@ public class Grid {
     public void clearInfluence() {
         for (int i = 0; i < this.height; i++) {
             for (int j = 0; j < this.width; j++) {
-                if (this.cells[j][i].itsPassable()) {
+                if (this.cells[j][i].isPassable()) {
                     this.cells[j][i].clearInfluences();
                 }
             }
@@ -74,10 +77,19 @@ public class Grid {
     public void clearDangerLaser() {
         for (int i = 0; i < this.height; i++) {
             for (int j = 0; j < this.width; j++) {
-                if (this.cells[j][i].itsPassable()) {
+                if (this.cells[j][i].isPassable()) {
                     this.cells[j][i].setDangerLaser(LessMineExplodeRule.NO_DANGER_LASER);
                 }
             }
+        }
+    }
+
+    /**
+     * Limpa os valores de perigo de spawnar bugs
+     */
+    public void clearSpawn() {
+        for (Point point : getSpawnPoints()) {
+            this.getCell(point.x, point.y).setRoundSpawn(0);
         }
     }
 
@@ -89,7 +101,7 @@ public class Grid {
     public void setAllPercorrida(boolean value) {
         for (int i = 0; i < this.height; i++) {
             for (int j = 0; j < this.width; j++) {
-                if (this.cells[j][i].itsPassable()) {
+                if (this.cells[j][i].isPassable()) {
                     this.cells[j][i].setPercorrido(value);
                 }
             }
@@ -149,6 +161,31 @@ public class Grid {
                 y++;
             }
         }
+    }
 
+    /**
+     * Pega os pontos que indicam spawn de bugs
+     *
+     * @return Uma lista de celulas que são spawn de bugs
+     */
+    public ArrayList<Point> getSpawnPoints() {
+        ArrayList<Point> spawns = new ArrayList<Point>(4);
+
+        // Adiciona as celulas de spawns
+        spawns.add(new Point(0, 0));
+        spawns.add(new Point(0, this.height - 1));
+        spawns.add(new Point(this.width - 1, this.height - 1));
+        spawns.add(new Point(this.width - 1, 0));
+
+        return spawns;
+    }
+
+    /**
+     * Diz se a malha já foi definida ou não
+     *
+     * @return True se já foi definida, False caso contrario
+     */
+    public boolean isDefined() {
+        return this.cells[0][0] != null;
     }
 }

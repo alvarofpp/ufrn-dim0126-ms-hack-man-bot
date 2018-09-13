@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import ufrn.alvarofpp.field.grid.Grid;
 import ufrn.alvarofpp.field.grid.cell.Cell;
 import ufrn.alvarofpp.move.MoveType;
+import ufrn.alvarofpp.move.pathfinding.DistributeInfluence;
 import ufrn.alvarofpp.move.pathfinding.InfluenceType;
 import ufrn.alvarofpp.move.pathfinding.MapInfluence;
 
@@ -51,14 +52,16 @@ public class Field {
     private ArrayList<Point> bombPositions;
     private ArrayList<Point> tickingBombPositions;
 
-    private boolean gridDefinida;
+    private DistributeInfluence distributeInfluence;
+    private ArrayList<BugType> enemyTypes;
 
     public Field() {
-        this.gridDefinida = false;
         this.enemyPositions = new ArrayList<>();
         this.snippetPositions = new ArrayList<>();
         this.bombPositions = new ArrayList<>();
         this.tickingBombPositions = new ArrayList<>();
+
+        this.enemyTypes = new ArrayList<>();
     }
 
     /**
@@ -88,6 +91,8 @@ public class Field {
         this.snippetPositions.clear();
         this.bombPositions.clear();
         this.tickingBombPositions.clear();
+
+        this.enemyTypes.clear();
     }
 
     /**
@@ -102,11 +107,11 @@ public class Field {
         String[] cells = input.split(",");
 
         // Define a malha caso ela ainda não tenha sido definida
-        if (!this.gridDefinida) {
+        if (!this.grid.isDefined()) {
             this.grid.define(cells);
-            this.gridDefinida = true;
         } else {
             this.grid.clearDangerLaser();
+            this.grid.clearSpawn();
         }
 
         int x = 0;
@@ -115,7 +120,7 @@ public class Field {
         for (String cell : cells) {
             Cell cellGrid = this.grid.getCell(x, y);
             // Quando é uma celula que pode ser atualizada os valores
-            if (cellGrid.itsPassable()) {
+            if (cellGrid.isPassable()) {
                 for (String cellPart : cell.split(";")) {
                     switch (cellPart.charAt(0)) {
                         case 'P':
@@ -132,6 +137,9 @@ public class Field {
                             break;
                         case 'C':
                             parseSnippetCell(x, y);
+                            break;
+                        case 'S':
+                            parseSpawnCell(cellPart, x, y);
                             break;
                     }
                 }
@@ -151,38 +159,17 @@ public class Field {
      * Distribui as influencias nas celulas da malha
      */
     private void distributeInfluence() {
-        Cell myCell = this.grid.getCell(this.myPosition.x, this.myPosition.y);
-        MapInfluence mi = new MapInfluence(myCell, InfluenceType.SNIPPET);
-
-        // Limpa as influencias deixadas
-        this.grid.clearInfluence();
-
-        // CODE SNIPPETS
-        // Distribui a influencia nas celulas para cada code snippet
-        for (Point point : getSnippetPositions()) {
-            // Coloca que não foram percorridos ainda
-            this.grid.setAllPercorrida(false);
-            // Atribui os valores de influencia
-            mi.algorithm(this.grid.getCell(point.x, point.y), MapInfluence.INFLUENCE_INIT);
+        // Caso a classe não tenha ainda sido instanciada
+        if (this.distributeInfluence == null) {
+            // Atribuir nova instancia
+            distributeInfluence = new DistributeInfluence(this.grid, this.myPosition);
+        } else {
+            // Atualiza posição do jogador
+            distributeInfluence.setPlayerPosition(this.myPosition);
         }
-
-        // BUGS
-        mi.setInfluenceType(InfluenceType.BUG);
-        // Distribui a influencia nas celulas para cada bug em um raio definido
-        for (Point point : getEnemyPositions()) {
-            // Coloca que não foram percorridos ainda
-            this.grid.setAllPercorrida(false);
-            // Atribui os valores de influencia
-            mi.algorithm(this.grid.getCell(point.x, point.y), MapInfluence.INFLUENCE_INIT);
-        }
-
-        // LASER-MINES
-        mi.setInfluenceType(InfluenceType.LASE_MINER);
-        // Distribui a influencia nas celulas para cada laser-mine
-        for (Point point : getTickingBombPositions()) {
-            // Atribui os valores de influencia
-            mi.initAlgorithmLaserMines(this.grid.getCell(point.x, point.y));
-        }
+        // Realizar a distribuição de influências
+        distributeInfluence.distribute(getSnippetPositions(), getEnemyPositions(),
+                getTickingBombPositions(), getEnemyTypes());
     }
 
     /**
@@ -210,6 +197,7 @@ public class Field {
      */
     private void parseEnemyCell(char type, int x, int y) {
         this.enemyPositions.add(new Point(x, y));
+        this.enemyTypes.add(BugType.declare(Integer.parseInt(String.valueOf(type))));
     }
 
     /**
@@ -241,6 +229,19 @@ public class Field {
      */
     private void parseSnippetCell(int x, int y) {
         this.snippetPositions.add(new Point(x, y));
+    }
+
+    /**
+     * Salva a quantidade de turnos que falta para um bug spawnar na celula
+     *
+     * @param cell Celula spawn
+     * @param x    Posição X
+     * @param y    Posição Y
+     */
+    private void parseSpawnCell(String cell, int x, int y) {
+        if (cell.length() > 1) {
+            this.grid.getCell(x, y).setRoundSpawn(Integer.parseInt(String.valueOf(cell.charAt(1))));
+        }
     }
 
     //Pick the best move type out of getValidMoveTypes
@@ -288,5 +289,9 @@ public class Field {
 
     public ArrayList<Point> getTickingBombPositions() {
         return this.tickingBombPositions;
+    }
+
+    public ArrayList<BugType> getEnemyTypes() {
+        return enemyTypes;
     }
 }

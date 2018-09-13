@@ -14,8 +14,9 @@ public enum CellType {
     }
 
     /**
-     * Define o tipo de celular pela entrada
+     * Declara o tipo de celula pela entrada
      *
+     * @param cell Tipo de celula recebido pela API
      * @return O tipo correspondente da celula
      */
     public static CellType declare(String cell) {

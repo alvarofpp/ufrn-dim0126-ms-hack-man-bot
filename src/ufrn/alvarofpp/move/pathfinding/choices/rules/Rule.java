@@ -7,5 +7,5 @@ abstract class Rule {
     /**
      * Valor máximo de influencia aceitavel de Bug na celula
      */
-    static final double MAX_INFLUENCE_BUG_ACCEPT = 0.6;
+    static final double MAX_INFLUENCE_BUG_ACCEPT = 0.7;
 }

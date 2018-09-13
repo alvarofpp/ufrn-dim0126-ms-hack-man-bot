@@ -26,10 +26,6 @@ public class Cell {
     private Cell left;
     private Cell right;
     /**
-     * Se a celula serve de spawn para bugs
-     */
-    private boolean spawnBug;
-    /**
      * Ponto X,Y que essa célula representa no mapa
      */
     private Point position;
@@ -53,6 +49,10 @@ public class Cell {
      * Se a celula já foi percorrida pelo algoritmo de map influence
      */
     private boolean percorrido;
+    /**
+     * Quantidade de rounds que falta para spawnar um bug
+     */
+    private int roundSpawn;
 
     /**
      * Construct
@@ -65,13 +65,13 @@ public class Cell {
         // Variaveis declaradas
         this.cellType = CellType.declare(cellType);
         this.position = new Point(x, y);
-        // Variaveis de valores padrão
-        this.spawnBug = false;
         // Vizinhos
         this.up = null;
         this.down = null;
         this.left = null;
         this.right = null;
+        // Padrão
+        this.roundSpawn = 0;
         // Influencias
         this.influenceSnippet = 0.0;
         this.influenceBug = 0.0;
@@ -257,7 +257,7 @@ public class Cell {
      *
      * @return True caso seja passavel, False caso contrário
      */
-    public boolean itsPassable() {
+    public boolean isPassable() {
         return !this.isBlocked();
     }
 
@@ -323,7 +323,7 @@ public class Cell {
     }
 
     public void setInfluenceBug(double influenceBug) {
-        this.influenceBug = influenceBug;
+        this.influenceBug += influenceBug;
     }
 
     public double getInfluenceBug() {
@@ -354,5 +354,11 @@ public class Cell {
         this.dangerLaser = dangerLaser;
     }
 
+    public int getRoundSpawn() {
+        return roundSpawn;
+    }
 
+    public void setRoundSpawn(int roundSpawn) {
+        this.roundSpawn = roundSpawn;
+    }
 }
