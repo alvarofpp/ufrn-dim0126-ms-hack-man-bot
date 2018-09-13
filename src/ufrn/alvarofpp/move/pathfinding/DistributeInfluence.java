@@ -1,5 +1,6 @@
 package ufrn.alvarofpp.move.pathfinding;
 
+import ufrn.alvarofpp.field.BugType;
 import ufrn.alvarofpp.field.grid.Grid;
 import ufrn.alvarofpp.field.grid.cell.Cell;
 
@@ -18,8 +19,6 @@ public class DistributeInfluence {
      * Objeto que realizará o algoritmo de Map Influence
      */
     private MapInfluence mapInfluence;
-
-    private static final int MAX_CELLS_SPAWN = 4;
 
     /**
      * Constructor
@@ -40,15 +39,16 @@ public class DistributeInfluence {
      * @param snippetPositions     Posição dos code snippets
      * @param bugsPositions        Posição dos bugs
      * @param tickingBombPositions Posição das minas
+     * @param enemyTypes           Tipos dos bugs presentes no mapa
      */
     public void distribute(ArrayList<Point> snippetPositions, ArrayList<Point> bugsPositions,
-                           ArrayList<Point> tickingBombPositions) {
+                           ArrayList<Point> tickingBombPositions, ArrayList<BugType> enemyTypes) {
         // Limpa as influencias deixadas
         this.grid.clearInfluence();
 
         // Realiza as distribuições de influencias
         this.influenceSnippet(snippetPositions);
-        this.influenceBugs(bugsPositions);
+        this.influenceBugs(bugsPositions, enemyTypes);
         this.influenceMines(tickingBombPositions);
         this.influenceSpawn();
     }
@@ -74,11 +74,14 @@ public class DistributeInfluence {
      *
      * @param bugsPositions Posição dos bugs
      */
-    private void influenceBugs(ArrayList<Point> bugsPositions) {
+    private void influenceBugs(ArrayList<Point> bugsPositions, ArrayList<BugType> bugsTypes) {
         this.mapInfluence.setInfluenceType(InfluenceType.BUG);
 
         // Distribui a influencia nas celulas para cada bug em um raio definido
-        for (Point point : bugsPositions) {
+        for (int i = 0; i < bugsPositions.size(); i++) {
+            Point point = bugsPositions.get(i);
+            // Informa o tipo de bug
+            this.mapInfluence.setBugType(bugsTypes.get(i));
             // Coloca que não foram percorridos ainda e depois percorre
             this.grid.setAllPercorrida(false);
             this.mapInfluence.algorithm(this.grid.getCell(point.x, point.y), MapInfluence.INFLUENCE_INIT);

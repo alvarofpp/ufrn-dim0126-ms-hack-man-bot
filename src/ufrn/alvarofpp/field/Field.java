@@ -53,12 +53,15 @@ public class Field {
     private ArrayList<Point> tickingBombPositions;
 
     private DistributeInfluence distributeInfluence;
+    private ArrayList<BugType> enemyTypes;
 
     public Field() {
         this.enemyPositions = new ArrayList<>();
         this.snippetPositions = new ArrayList<>();
         this.bombPositions = new ArrayList<>();
         this.tickingBombPositions = new ArrayList<>();
+
+        this.enemyTypes = new ArrayList<>();
     }
 
     /**
@@ -88,6 +91,8 @@ public class Field {
         this.snippetPositions.clear();
         this.bombPositions.clear();
         this.tickingBombPositions.clear();
+
+        this.enemyTypes.clear();
     }
 
     /**
@@ -163,7 +168,8 @@ public class Field {
             distributeInfluence.setPlayerPosition(this.myPosition);
         }
         // Realizar a distribuição de influências
-        distributeInfluence.distribute(getSnippetPositions(), getEnemyPositions(), getTickingBombPositions());
+        distributeInfluence.distribute(getSnippetPositions(), getEnemyPositions(),
+                getTickingBombPositions(), getEnemyTypes());
     }
 
     /**
@@ -191,6 +197,7 @@ public class Field {
      */
     private void parseEnemyCell(char type, int x, int y) {
         this.enemyPositions.add(new Point(x, y));
+        this.enemyTypes.add(BugType.declare(Integer.parseInt(String.valueOf(type))));
     }
 
     /**
@@ -224,6 +231,13 @@ public class Field {
         this.snippetPositions.add(new Point(x, y));
     }
 
+    /**
+     * Salva a quantidade de turnos que falta para um bug spawnar na celula
+     *
+     * @param cell Celula spawn
+     * @param x    Posição X
+     * @param y    Posição Y
+     */
     private void parseSpawnCell(String cell, int x, int y) {
         if (cell.length() > 1) {
             this.grid.getCell(x, y).setRoundSpawn(Integer.parseInt(String.valueOf(cell.charAt(1))));
@@ -275,5 +289,9 @@ public class Field {
 
     public ArrayList<Point> getTickingBombPositions() {
         return this.tickingBombPositions;
+    }
+
+    public ArrayList<BugType> getEnemyTypes() {
+        return enemyTypes;
     }
 }

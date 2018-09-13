@@ -1,5 +1,6 @@
 package ufrn.alvarofpp.move.pathfinding;
 
+import ufrn.alvarofpp.field.BugType;
 import ufrn.alvarofpp.field.grid.cell.Cell;
 import ufrn.alvarofpp.move.MoveType;
 
@@ -19,6 +20,8 @@ public class MapInfluence {
      * Celula que o jogador estar
      */
     private Cell iAm;
+
+    private BugType bugType;
 
     /**
      * Constructor
@@ -53,8 +56,11 @@ public class MapInfluence {
         // Verifica se a celula já foi percorrida
         if (!here.isPercorrido() || this.getInfluenceValue(here) < influence) {
             // Prevalece a influencia do caminho mais perto
-            if (this.getInfluenceValue(here) < influence) {
+            if (this.getInfluenceValue(here) < influence && this.influenceType.equals(InfluenceType.SNIPPET)) {
                 this.setInfluence(here, influence);
+            // Insere aumenta a influencia pelo tipo de bug
+            } else if (this.influenceType.equals(InfluenceType.BUG)) {
+                this.setInfluence(here, (influence * bugType.getValueMultiplyType()));
             }
             here.setPercorrido(true);
 
@@ -68,6 +74,11 @@ public class MapInfluence {
         }
     }
 
+    /**
+     * Começo do algoritmo recursivo de inserir os valores de spawn de bug proximo
+     *
+     * @param here Celula de spawn de bug que possivelmente possui um bug para spawnar
+     */
     void initAlgorithmSpawn(Cell here) {
         // Caso não tenha spawn de bug nos proximos rounds
         if (here.getRoundSpawn() < 1 || here.getRoundSpawn() > 2) {
@@ -82,6 +93,13 @@ public class MapInfluence {
         this.algorithmSpawn(here, influence, distance);
     }
 
+    /**
+     * Atribui o valor de influencia de bug na celula de spawn e nas proximas
+     *
+     * @param here      Celula de spawn ou celula proxima
+     * @param influence Valor de influencia
+     * @param distance  Distancia percorrida até chegar ao valor máximo de celulas percorridas
+     */
     private void algorithmSpawn(Cell here, double influence, int distance) {
         // Caso já tenha percorrido a quantidade máxima de celulas
         if (distance == 0) {
@@ -191,5 +209,9 @@ public class MapInfluence {
 
     void setiAm(Cell iAm) {
         this.iAm = iAm;
+    }
+
+    public void setBugType(BugType bugType) {
+        this.bugType = bugType;
     }
 }
